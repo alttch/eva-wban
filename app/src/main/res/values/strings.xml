@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">EVA ICS WBAN Bridge</string>
+    <string name="app_name_a_settings">SETTINGS</string>
+    <string name="app_name_a_devices">DEVICES</string>
+    <string name="app_name_a_barcode">QR SCANNER</string>
+
+
+    <string name="app_connecting_to">Connecting to</string>
+    <string name="app_connect_to">Connect to</string>
+    <string name="app_disconnecting_from">Disconnecting from</string>
+    <string name="app_disconnect_from">Disconnect from</string>
+    <string name="app_reconnect_to">Reconnect to</string>
+    <string name="app_choose_device">choose</string>
+
+    <string name="app_progress_please_wait">Please wait</string>
+    <string name="app_progress_connecting">connecting…</string>
+    <string name="app_progress_disconnecting">disconnecting…</string>
+    <string name="app_progress_discovering">discovering…</string>
+    <string name="app_progress_waiting_for_data">waiting for data…</string>
+    <string name="app_data">---</string>
+    <string name="app_devices_scan">Scan</string>
+
+    <string name="app_settings">Settings</string>
+    <string name="app_settings_server_address">API Host*:</string>
+    <string name="app_settings_server_port">API Port*:</string>
+    <string name="app_settings_server_tts">Interval (sec):</string>
+    <string name="app_settings_server_id">ID*:</string>
+    <string name="app_settings_server_prefix">Prefix:</string>
+    <string name="app_settings_server_key">Key:</string>
+
+    <string name="app_settings_exception_bad_host">Bad API Host</string>
+    <string name="app_settings_exception_bad_port">Bad API Port</string>
+    <string name="app_settings_exception_bad_interval">Bad interval, min 1 second</string>
+    <string name="app_settings_exception_bad_id">Bad ID</string>
+    <string name="app_settings_exception_bad_input_code">Bad code</string>
+    <string name="app_settings_exception_bad_key">Bad key, the key should consist of 16 characters</string>
+
+    <string name="app_settings_save">Save</string>
+    <string name="app_settings_scan_qr">Scan QR</string>
+    <string name="app_qr_io_error">QR IO ERROR</string>
+
+    <string name="app_main_server_id">ID:</string>
+    <string name="app_main_debug">DEBUG</string>
+
+    <string name="app_main_notification_disconnected">biometric sensor disconnected:</string>
+    <string name="app_main_notification_receive_error">biometric sensor data error:</string>
+
+
+</resources>
