@@ -155,10 +155,21 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 MainActivity.this.isDebugEnabled = !MainActivity.this.isDebugEnabled;
                 MainActivity.this.recyclerView.setVisibility(MainActivity.this.isDebugEnabled ? View.VISIBLE : View.GONE);
+                MainActivity.this.bluetoothLeService.setLogEnabled(MainActivity.this.isDebugEnabled);
                 if (MainActivity.this.isDebugEnabled) {
                     MainActivity.this.logAdapter.setDataSource(MainActivity.this.bluetoothLeService.getLog());
-                    MainActivity.this.recyclerView.smoothScrollToPosition(MainActivity.this.bluetoothLeService.getLog().size() - 1);
+                    if (MainActivity.this.bluetoothLeService.getLog().size() > 0) {
+                        MainActivity.this.recyclerView.smoothScrollToPosition(MainActivity.this.bluetoothLeService.getLog().size() - 1);
+                    }
                 }
+            }
+        });
+
+        findViewById(R.id.a_main_quit_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.this.bluetoothLeService.disconnect();
+                finish();
             }
         });
     }
@@ -257,7 +268,9 @@ public class MainActivity extends AppCompatActivity {
 
             if (isDebugEnabled) {
                 MainActivity.this.logAdapter.setDataSource(MainActivity.this.bluetoothLeService.getLog());
-                MainActivity.this.recyclerView.smoothScrollToPosition(MainActivity.this.bluetoothLeService.getLog().size() - 1);
+                if (MainActivity.this.bluetoothLeService.getLog().size() > 0) {
+                    MainActivity.this.recyclerView.smoothScrollToPosition(MainActivity.this.bluetoothLeService.getLog().size() - 1);
+                }
             }
         }
     };

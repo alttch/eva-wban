@@ -41,6 +41,7 @@
 
     <string name="app_main_server_id">ID:</string>
     <string name="app_main_debug">DEBUG</string>
+    <string name="app_main_quit">QUIT</string>
 
     <string name="app_main_notification_disconnected">biometric sensor disconnected:</string>
     <string name="app_main_notification_receive_error">biometric sensor data error:</string>

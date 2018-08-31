@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.preference.PreferenceManager;
 
 import com.altertech.scanner.service.BluetoothLeService;
@@ -66,7 +65,7 @@ public class BaseApplication extends Application implements AppConstants {
     }
 
     public String getServerAddress() {
-        return preferences.getString(SERVER_ADDRESS, "192.168.0.1");
+        return preferences.getString(SERVER_ADDRESS, StringUtil.EMPTY_STRING);
     }
 
     public void setServerPort(int port) {
@@ -98,7 +97,7 @@ public class BaseApplication extends Application implements AppConstants {
     }
 
     public String getServerPrefix() {
-        return preferences.getString(SERVER_PREFIX, "USERNAME");
+        return preferences.getString(SERVER_PREFIX, StringUtil.EMPTY_STRING);
     }
 
     public void setServerKey(String key) {

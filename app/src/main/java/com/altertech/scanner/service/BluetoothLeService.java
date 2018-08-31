@@ -50,7 +50,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class BluetoothLeService extends Service {
 
-    public final static boolean logEnabled = true;
     public final static String EXTRA_DATA = "com.altertech.scanner.le.EXTRA_DATA";
     public final static int DEFAULT_NOTIFICATION_ID = 1;
 
@@ -124,6 +123,14 @@ public class BluetoothLeService extends Service {
     private StatusPair statusProgressUI = StatusPair.ACTION_GATT_DISCONNECTED;
 
     private boolean isOnline = false;
+
+    public boolean logEnabled = true;
+
+    public void setLogEnabled(boolean logEnabled) {
+        this.log.clear();
+        this.log.add("DEBUG STARTED");
+        this.logEnabled = logEnabled;
+    }
 
     private List<String> log = new LinkedList<>();
 
@@ -547,7 +554,7 @@ public class BluetoothLeService extends Service {
                     BluetoothLeService.this.writeCharacteristic(characteristic, DATA_HEART_RATE_KEEP_ONLINE);
                 }
                 long sub = new Date().getTime() - BluetoothLeService.this.systemDateTimeOfLastSuccessKeepOnline.getTime();
-                if (sub >= 60000 || (BluetoothLeService.this.status.equals(StatusPair.ACTION_GATT_CONNECTED) && isNewDateNotAvailable)) {
+                if (sub >= 10000 || (BluetoothLeService.this.status.equals(StatusPair.ACTION_GATT_CONNECTED) && isNewDateNotAvailable)) {
                     BluetoothLeService.this.connect(BaseApplication.get(BluetoothLeService.this).getAddress(), StatusPair.ACTION_GATT_RECONNECT);
                 } else {
                     BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_KEEP_ONLINE, "step", false);
@@ -564,11 +571,17 @@ public class BluetoothLeService extends Service {
 
         @Override
         protected Void doInBackground(Void... voids) {
+
+            String host = BaseApplication.get(BluetoothLeService.this).getServerAddress();
+            if (StringUtil.isEmpty(host)) {
+                return null;
+            }
+
             DatagramSocket socket = null;
             try {
                 String message = BluetoothLeService.this.receiveData.getDataMessage();
                 DatagramPacket dp = new DatagramPacket(message.getBytes(), message.length(),
-                        InetAddress.getByName(BaseApplication.get(BluetoothLeService.this).getServerAddress()),
+                        InetAddress.getByName(host),
                         BaseApplication.get(BluetoothLeService.this).getServerPort());
                 socket = new DatagramSocket();
                 socket.setBroadcast(true);

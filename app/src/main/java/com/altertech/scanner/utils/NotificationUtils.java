@@ -4,13 +4,17 @@ package com.altertech.scanner.utils;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 
 import com.altertech.scanner.R;
+import com.altertech.scanner.ui.MainActivity;
+import com.altertech.scanner.ui.SplashActivity;
 
 
 /**
@@ -44,7 +48,9 @@ public class NotificationUtils {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setColor(context.getResources().getColor(R.color.app_white))
                 .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING)
-                .setLights(Color.WHITE, 1000, 3000).build();
+                .setLights(Color.WHITE, 1000, 3000)
+                .setContentIntent(PendingIntent.getActivity(context,  0, new Intent(context, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_CANCEL_CURRENT))
+                .build();
     }
 
 }
