@@ -114,4 +114,8 @@ public class BaseApplication extends Application implements AppConstants {
     public boolean getAutoStartState() {
         return preferences.getBoolean(APP_AUTO_START_STATE, true);
     }
+
+    public boolean existDevice(){
+        return StringUtil.isNotEmpty(this.getAddress());
+    }
 }

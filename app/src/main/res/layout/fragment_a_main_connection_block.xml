@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/drawable_connection_block"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/space_20dp"
+    android:paddingEnd="@dimen/space_10dp"
+    android:paddingStart="@dimen/space_10dp"
+    android:paddingTop="@dimen/space_5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/app_main_server_id"
+            android:textColor="@color/app_white"
+            android:textSize="@dimen/text_views_text_size_12sp" />
+
+        <TextView
+            android:id="@+id/fragment_a_main_connection_block_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_3dp"
+            android:text="USERNAME"
+            android:textColor="@color/app_white"
+            android:textSize="@dimen/text_views_text_size_14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/space_1dp"
+            android:layout_marginTop="@dimen/space_3dp"
+            android:background="@color/app_white" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="@dimen/space_5dp"
+            android:layout_toStartOf="@+id/fragment_a_main_connection_block_controls_container"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/fragment_a_main_connection_block_device_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_3dp"
+                android:text="MI Band 2"
+                android:textColor="@color/app_white"
+                android:textSize="@dimen/text_views_text_size_14sp" />
+
+            <TextView
+                android:id="@+id/fragment_a_main_connection_block_device_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_3dp"
+                android:text="DD:UU:YY:RR:OO"
+                android:textColor="@color/app_white"
+                android:textSize="@dimen/text_views_text_size_14sp" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/fragment_a_main_connection_block_controls_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/fragment_a_main_connection_block_connect_disconnect_button"
+                android:layout_width="@dimen/space_150dp"
+                android:layout_height="@dimen/space_30dp"
+                android:background="@drawable/border_white_body_transparent_with_big_corners"
+                android:text="@string/app_connect"
+                android:textColor="@color/app_white" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/space_10dp" />
+
+            <Button
+                android:id="@+id/fragment_a_main_connection_block_choose_other_devices_button"
+                android:layout_width="@dimen/space_150dp"
+                android:layout_height="@dimen/space_30dp"
+                android:background="@drawable/border_white_body_transparent_with_big_corners"
+                android:text="@string/app_choose_other_devices"
+                android:textColor="@color/app_white" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>

@@ -38,8 +38,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -124,13 +122,13 @@ public class BluetoothLeService extends Service {
 
     public boolean logEnabled = true;
 
+    private StringBuilder log = new StringBuilder();
+
     public void setLogEnabled(boolean logEnabled) {
-        this.log.clear();
-        this.log.add("DEBUG STARTED");
+        this.log = new StringBuilder();
+        this.log.append("DEBUG STARTED");
         this.logEnabled = logEnabled;
     }
-
-    private List<String> log = new LinkedList<>();
 
     private final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
 
@@ -448,7 +446,7 @@ public class BluetoothLeService extends Service {
     private boolean foregroundNotificationEnabled = false;
 
     private void startForegroundNotification() {
-        this.startForeground(NotificationUtils.NOTIFICATION_ID, NotificationUtils.generateBaseNotification(this,NotificationUtils.ChannelId.CONNECTED, getStatusProgressUI().name()));
+        this.startForeground(NotificationUtils.NOTIFICATION_ID, NotificationUtils.generateBaseNotification(this, NotificationUtils.ChannelId.CONNECTED, getStatusProgressUI().name()));
         this.foregroundNotificationEnabled = true;
     }
 
@@ -474,14 +472,14 @@ public class BluetoothLeService extends Service {
         this.sendBroadcast(intent);
 
         if (this.foregroundNotificationEnabled) {
-            if (statusProgressUI.equals(StatusPair.ACTION_GATT_DISCONNECTED)){
+            if (statusProgressUI.equals(StatusPair.ACTION_GATT_DISCONNECTED)) {
                 NotificationUtils.show(this, UI || isOnline() || vibrationDisabled ? NotificationUtils.ChannelId.DEFAULT : NotificationUtils.ChannelId.DISCONNECTED, getResources().getString(R.string.app_main_notification_disconnected) + " " + BaseApplication.get(this).getName());
                 vibrationDisabled = true;
             } else if (statusProgressUI.equals(StatusPair.ACTION_GATT_NEW_DATA_NOT_AVAILABLE)) {
                 NotificationUtils.show(this, UI || isOnline() || vibrationDisabled ? NotificationUtils.ChannelId.DEFAULT : NotificationUtils.ChannelId.ERROR, getResources().getString(R.string.app_main_notification_receive_error) + " " + BaseApplication.get(this).getName());
                 vibrationDisabled = true;
             } else {
-                if(status.equals(StatusPair.ACTION_GATT_CONNECTED)){
+                if (status.equals(StatusPair.ACTION_GATT_CONNECTED)) {
                     vibrationDisabled = false;
                 }
                 NotificationUtils.show(this, NotificationUtils.ChannelId.DEFAULT, this.statusProgressUI.name());
@@ -494,7 +492,7 @@ public class BluetoothLeService extends Service {
                 : date + " -> " + (status.getAction().replace("com.altertech.scanner.le.ACTION_GATT_", ""));
         Log.d(TAG, message + " from UI => " + UI);
         if (logEnabled) {
-            this.log.add(message + " from UI => " + UI);
+            this.log.append("\n").append(message).append(" from UI => ").append(UI);
         }
 
     }
@@ -533,8 +531,8 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    public List<String> getLog() {
-        return log;
+    public String getLog() {
+        return log.toString();
     }
 
     @SuppressLint("StaticFieldLeak")

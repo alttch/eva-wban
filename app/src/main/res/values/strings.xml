@@ -4,8 +4,10 @@
     <string name="app_name_a_devices">DEVICES</string>
     <string name="app_name_a_barcode">QR SCANNER</string>
 
+    <string name="app_connect">Connect</string>
+    <string name="app_choose_other_devices">Choose other</string>
 
-    <string name="app_connecting_to">Connecting to</string>
+    <string name="app_connecting_to">Connecting to</string><!--delete-->
     <string name="app_connect_to">Connect to</string>
     <string name="app_disconnecting_from">Disconnecting from</string>
     <string name="app_disconnect_from">Disconnect from</string>
