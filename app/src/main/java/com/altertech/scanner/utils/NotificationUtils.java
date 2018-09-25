@@ -4,17 +4,15 @@ package com.altertech.scanner.utils;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 
 import com.altertech.scanner.R;
-import com.altertech.scanner.ui.MainActivity;
-import com.altertech.scanner.ui.SplashActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -22,35 +20,105 @@ import com.altertech.scanner.ui.SplashActivity;
  */
 public class NotificationUtils {
 
-    private static final String NOTIFICATION_CHANNEL_ID = "com.altertech.scanner.custom";
+    public final static int NOTIFICATION_ID = 123;
+
+    public enum ChannelId {
+        CONNECTED("CONNECTED", "Connected channel"), DISCONNECTED("DISCONNECTED", "Disconnected channel"), ERROR("ERROR", "Error channel"), DEFAULT("DEFAULT", "Default channel");
+        String id, name;
+
+        ChannelId(String id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public List<String> getListIDs() {
+            List<String> strings = new ArrayList<>();
+            for (ChannelId id : values()) {
+                strings.add(id.getId());
+            }
+            return strings;
+        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private static NotificationChannel generateNotificationChannel(int importance) {
-        NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "custom", importance);
-        notificationChannel.setVibrationPattern(new long[]{500, 1000});
-        notificationChannel.enableLights(true);
-        notificationChannel.setLightColor(Color.RED);
-        return notificationChannel;
+    private static NotificationChannel getChannelByChannelId(ChannelId channelId) {
+        NotificationChannel channel = new NotificationChannel(channelId.getId(), channelId.getName(), NotificationManager.IMPORTANCE_HIGH);
+        if (channelId.equals(ChannelId.CONNECTED)) {
+            channel.enableVibration(true);
+        } else if (channelId.equals(ChannelId.DISCONNECTED)) {
+            channel.enableVibration(true);
+        } else if (channelId.equals(ChannelId.ERROR)) {
+            channel.enableVibration(true);
+        } else if (channelId.equals(ChannelId.DEFAULT)) {
+            channel.enableVibration(false);
+        }
+        channel.setSound(null, null);
+        return channel;
     }
 
-    public static NotificationManager getNotificationManager(Context context, int importance) {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    private static void createChannels(Context context) {
+        NotificationManager notificationManager = getNotificationManager(context);
         if (notificationManager != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                notificationManager.createNotificationChannel(generateNotificationChannel(importance));
+                notificationManager.createNotificationChannel(getChannelByChannelId(ChannelId.CONNECTED));
+                notificationManager.createNotificationChannel(getChannelByChannelId(ChannelId.DISCONNECTED));
+                notificationManager.createNotificationChannel(getChannelByChannelId(ChannelId.ERROR));
+                notificationManager.createNotificationChannel(getChannelByChannelId(ChannelId.DEFAULT));
             }
         }
-        return notificationManager;
     }
 
-    public static Notification generateNotification(Context context, String title) {
-        return new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+    private static NotificationManager getNotificationManager(Context context) {
+        return (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    }
+
+    public static void show(Context context, ChannelId channelId, String title) {
+        NotificationManager notificationManager = getNotificationManager(context);
+        if (notificationManager != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                NotificationUtils.createChannels(context);
+
+                Notification notification = new NotificationCompat.Builder(context, channelId.getId())
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING)
+                        .build();
+                notificationManager.notify(NOTIFICATION_ID, notification);
+            } else {
+                notificationManager.notify(NOTIFICATION_ID, generateSimpleNotification(context, channelId, title));
+            }
+        }
+    }
+
+    private static Notification generateSimpleNotification(Context context, ChannelId channelId, String title) {
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setColor(context.getResources().getColor(R.color.app_white))
-                .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING)
-                .setLights(Color.WHITE, 1000, 3000)
-                .setContentIntent(PendingIntent.getActivity(context,  0, new Intent(context, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_CANCEL_CURRENT))
-                .build();
+                .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING);
+
+        if (channelId.equals(ChannelId.CONNECTED)) {
+            notification.setVibrate(new long[]{0, 500});
+        } else if (channelId.equals(ChannelId.DISCONNECTED)) {
+            notification.setVibrate(new long[]{0, 500});
+        } else if (channelId.equals(ChannelId.ERROR)) {
+            notification.setVibrate(new long[]{0, 500});
+        } else if (channelId.equals(ChannelId.DEFAULT)) {
+        }
+
+        return notification.build();
+    }
+
+    public static Notification generateBaseNotification(Context context, ChannelId channelId, String title) {
+        return new NotificationCompat.Builder(context, channelId.getId())
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING).build();
     }
 
 }

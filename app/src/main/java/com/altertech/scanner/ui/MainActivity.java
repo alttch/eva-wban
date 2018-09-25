@@ -2,6 +2,8 @@ package com.altertech.scanner.ui;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -11,6 +13,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,9 +34,11 @@ import com.altertech.scanner.helpers.IntentHelper;
 import com.altertech.scanner.helpers.ToastHelper;
 import com.altertech.scanner.service.BluetoothLeService;
 import com.altertech.scanner.ui.log.LogAdapter;
+import com.altertech.scanner.utils.NotificationUtils;
 import com.altertech.scanner.utils.StringUtil;
 
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -162,6 +167,9 @@ public class MainActivity extends AppCompatActivity {
                         MainActivity.this.recyclerView.smoothScrollToPosition(MainActivity.this.bluetoothLeService.getLog().size() - 1);
                     }
                 }
+
+               // NotificationUtils.show(MainActivity.this, NotificationUtils.ChannelId.DISCONNECTED, NotificationUtils.ChannelId.DISCONNECTED.getName());
+
             }
         });
 

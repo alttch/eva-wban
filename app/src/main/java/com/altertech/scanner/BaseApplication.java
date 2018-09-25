@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.altertech.scanner.service.BluetoothLeService;
+import com.altertech.scanner.utils.NotificationUtils;
 import com.altertech.scanner.utils.StringUtil;
 
 /**

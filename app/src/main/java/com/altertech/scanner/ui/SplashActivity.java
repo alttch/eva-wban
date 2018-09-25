@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.altertech.scanner.BaseApplication;
 import com.altertech.scanner.R;
 import com.altertech.scanner.helpers.IntentHelper;
+import com.altertech.scanner.utils.StringUtil;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -33,7 +34,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void initializationAction() {
-        if (BaseApplication.get(this).isFirstStart()) {
+        if (BaseApplication.get(this).isFirstStart() || StringUtil.isEmpty(BaseApplication.get(this).getServerAddress())) {
             IntentHelper.showSettingsActivity(this, true);
             BaseApplication.get(this).setFirstStart(false);
         } else {
