@@ -8,6 +8,9 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import com.altertech.scanner.BaseApplication;
@@ -15,6 +18,7 @@ import com.altertech.scanner.R;
 import com.altertech.scanner.helpers.IntentHelper;
 import com.altertech.scanner.helpers.ToastHelper;
 import com.altertech.scanner.ui.models.SettingsModel;
+import com.altertech.scanner.utils.AutoStartUtils;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -35,7 +39,28 @@ public class SettingsActivity extends AppCompatActivity {
         this.initialization();
     }
 
+
     private void initialization() {
+
+        CheckBox a_settings_auto_start = findViewById(R.id.a_settings_auto_start_local);
+        a_settings_auto_start.setChecked(BaseApplication.get(SettingsActivity.this).getAutoStartState());
+        a_settings_auto_start.setVisibility(AutoStartUtils.isUnAutoStartOS() ? View.GONE : View.VISIBLE);
+        a_settings_auto_start.setOnCheckedChangeListener(!AutoStartUtils.isUnAutoStartOS() ? new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                BaseApplication.get(SettingsActivity.this).setAutoStartState(b);
+            }
+        } : null);
+
+        Button a_settings_auto_start_global = findViewById(R.id.a_settings_auto_start_global);
+        a_settings_auto_start_global.setVisibility(AutoStartUtils.isUnAutoStartOS() ? View.VISIBLE : View.GONE);
+        a_settings_auto_start_global.setOnClickListener(AutoStartUtils.isUnAutoStartOS() ? new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AutoStartUtils.showAutoStartSettings(SettingsActivity.this);
+            }
+        } : null);
+
 
         this.a_settings_port = findViewById(R.id.a_settings_port);
         this.a_settings_port.setText(String.valueOf(BaseApplication.get(SettingsActivity.this).getServerPort()));
@@ -69,6 +94,7 @@ public class SettingsActivity extends AppCompatActivity {
                 try {
                     model.valid();
                     model.save(SettingsActivity.this);
+                    SettingsActivity.this.setResult(RESULT_OK);
                     SettingsActivity.this.finish();
                 } catch (SettingsModel.SettingsException e) {
                     ToastHelper.toast(SettingsActivity.this, e.getCustomMessage());
@@ -115,6 +141,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (getIntent().getBooleanExtra("from_start", false)) {
             IntentHelper.showMainActivity(this);
         }
+        this.setResult(RESULT_OK);
         this.finish();
     }
 }

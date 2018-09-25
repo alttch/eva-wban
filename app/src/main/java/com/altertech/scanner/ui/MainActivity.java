@@ -112,6 +112,10 @@ public class MainActivity extends AppCompatActivity {
 
             this.needToConnectAfterActivityAction = true;
         }
+        if (requestCode == IntentHelper.REQUEST_CODES.SETTINGS_ACTIVITY.getCode() && resultCode == Activity.RESULT_OK) {
+            ((TextView) findViewById(R.id.a_main_id)).setText(this.application.getServerID());
+        }
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -158,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.a_main_debug_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MainActivity.this.isDebugEnabled = !MainActivity.this.isDebugEnabled;
+                /*MainActivity.this.isDebugEnabled = !MainActivity.this.isDebugEnabled;
                 MainActivity.this.recyclerView.setVisibility(MainActivity.this.isDebugEnabled ? View.VISIBLE : View.GONE);
                 MainActivity.this.bluetoothLeService.setLogEnabled(MainActivity.this.isDebugEnabled);
                 if (MainActivity.this.isDebugEnabled) {
@@ -166,9 +170,9 @@ public class MainActivity extends AppCompatActivity {
                     if (MainActivity.this.bluetoothLeService.getLog().size() > 0) {
                         MainActivity.this.recyclerView.smoothScrollToPosition(MainActivity.this.bluetoothLeService.getLog().size() - 1);
                     }
-                }
+                }*/
 
-               // NotificationUtils.show(MainActivity.this, NotificationUtils.ChannelId.DISCONNECTED, NotificationUtils.ChannelId.DISCONNECTED.getName());
+                NotificationUtils.show(MainActivity.this, NotificationUtils.ChannelId.DISCONNECTED, NotificationUtils.ChannelId.DISCONNECTED.getName());
 
             }
         });

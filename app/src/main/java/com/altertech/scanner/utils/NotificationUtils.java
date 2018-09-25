@@ -4,12 +4,15 @@ package com.altertech.scanner.utils;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 
 import com.altertech.scanner.R;
+import com.altertech.scanner.ui.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +93,7 @@ public class NotificationUtils {
                 Notification notification = new NotificationCompat.Builder(context, channelId.getId())
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING)
+                        .setContentIntent(getIntent(context))
                         .build();
                 notificationManager.notify(NOTIFICATION_ID, notification);
             } else {
@@ -101,7 +105,8 @@ public class NotificationUtils {
     private static Notification generateSimpleNotification(Context context, ChannelId channelId, String title) {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING);
+                .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING)
+                .setContentIntent(getIntent(context));
 
         if (channelId.equals(ChannelId.CONNECTED)) {
             notification.setVibrate(new long[]{0, 500});
@@ -118,7 +123,14 @@ public class NotificationUtils {
     public static Notification generateBaseNotification(Context context, ChannelId channelId, String title) {
         return new NotificationCompat.Builder(context, channelId.getId())
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING).build();
+                .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING)
+                .setContentIntent(getIntent(context)).build();
     }
+
+    private static PendingIntent getIntent(Context context){
+        return PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK), 0);
+        /*context.getPackageManager().getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)*/
+    }
+
 
 }

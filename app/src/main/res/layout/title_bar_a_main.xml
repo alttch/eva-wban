@@ -9,15 +9,29 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
+            android:layout_height="match_parent"
             android:layout_toStartOf="@+id/title_bar_controls_container"
-            android:text="@string/app_name"
-            android:textAllCaps="true"
-            android:textColor="@color/app_white"
-            android:textSize="@dimen/text_views_text_size_18sp" />
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textAllCaps="true"
+                android:textColor="@color/app_white"
+                android:textSize="@dimen/text_views_text_size_18sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/app_version"
+                android:textColor="@color/app_white"
+                android:textSize="@dimen/text_views_text_size_12sp" />
+
+        </LinearLayout>
 
 
         <LinearLayout
@@ -37,5 +51,7 @@
                 tools:ignore="ContentDescription" />
 
         </LinearLayout>
+
+
     </RelativeLayout>
 </android.support.v7.widget.Toolbar>

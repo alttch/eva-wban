@@ -15,7 +15,8 @@ public class IntentHelper {
 
     public enum REQUEST_CODES {
         DEVICE_ACTIVITY(1001),
-        BAR_CODE_ACTIVITY(1002);
+        BAR_CODE_ACTIVITY(1002),
+        SETTINGS_ACTIVITY(1003);
         int code;
 
         REQUEST_CODES(int code) {
@@ -38,7 +39,7 @@ public class IntentHelper {
     }
 
     public static void showSettingsActivity(Context ctx, boolean from_start) {
-        ctx.startActivity(new Intent(ctx, SettingsActivity.class).putExtra("from_start", from_start));
+        ((Activity) ctx).startActivityForResult(new Intent(ctx, SettingsActivity.class).putExtra("from_start", from_start), REQUEST_CODES.SETTINGS_ACTIVITY.getCode());
         ((Activity) ctx).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 }

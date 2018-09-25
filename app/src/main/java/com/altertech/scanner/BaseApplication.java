@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.altertech.scanner.service.BluetoothLeService;
-import com.altertech.scanner.utils.NotificationUtils;
 import com.altertech.scanner.utils.StringUtil;
 
 /**
@@ -37,7 +36,6 @@ public class BaseApplication extends Application implements AppConstants {
             startService(new Intent(this, BluetoothLeService.class));
         }*/
     }
-
 
     public boolean isFirstStart() {
         return this.preferences.getBoolean(APP_FIRST_START, true);
@@ -107,5 +105,13 @@ public class BaseApplication extends Application implements AppConstants {
 
     public String getServerKey() {
         return preferences.getString(SERVER_KEY, StringUtil.EMPTY_STRING);
+    }
+
+    public void setAutoStartState(boolean state) {
+        this.preferences.edit().putBoolean(APP_AUTO_START_STATE, state).apply();
+    }
+
+    public boolean getAutoStartState() {
+        return preferences.getBoolean(APP_AUTO_START_STATE, true);
     }
 }
