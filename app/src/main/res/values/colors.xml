@@ -22,5 +22,8 @@
     <color name="app_orange_title_bar">#F78A00</color>
     <color name="app_active_gray_simple">#3f758e9a</color>
 
+    <color name="app_white_50">#80ffffff</color>
+
+    <color name="app_light_blue">#3ACAE4</color>
 
 </resources>

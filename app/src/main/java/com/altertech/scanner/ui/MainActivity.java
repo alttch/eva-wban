@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_temp);
+        setContentView(R.layout.activity_main);
 
         this.initializationControls();
     }
@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.updateDeviceStateColor(ContextCompat.getColor(MainActivity.this, R.color.app_red));
 
             } else if (intent.getAction().equals(BluetoothLeService.StatusPair.ACTION_GATT_DISCONNECTED.getAction())) {
-                MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_connect_to);
+                MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_connect);
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setEnabled(StringUtil.isNotEmpty(MainActivity.this.application.getAddress()));
                 MainActivity.this.fragment_a_main_connection_block_choose_other_devices_button.setVisibility(View.VISIBLE);
 
@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.updateDeviceStateColor(ContextCompat.getColor(MainActivity.this, R.color.app_red));
 
             } else if (intent.getAction().equals(BluetoothLeService.StatusPair.ACTION_GATT_UNKNOWN.getAction())) {
-                MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_connect_to);
+                MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_connect);
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setEnabled(true);
                 MainActivity.this.fragment_a_main_connection_block_choose_other_devices_button.setVisibility(View.VISIBLE);
 

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:fitsSystemWindows="true"
-    android:focusableInTouchMode="true">
+    android:focusableInTouchMode="true"
+    android:background="@drawable/background_main"
+    android:orientation="vertical">
 
     <include
         android:id="@+id/title_bar"
@@ -13,8 +15,7 @@
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/title_bar">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -25,28 +26,33 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/border_l_gray_with_small_corners"
                 android:orientation="vertical"
-                android:padding="10dp">
+                android:paddingEnd="@dimen/space_20dp"
+                android:paddingStart="@dimen/space_20dp">
 
                 <Button
                     android:id="@+id/a_settings_barcode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/app_settings_scan_qr" />
+                    android:text="@string/app_settings_scan_qr"
+                    android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
+                    android:textColor="@drawable/selector_change_white_color_to_blue_color" />
 
             </LinearLayout>
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="10dp" />
+                android:layout_height="30dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/border_l_gray_with_small_corners"
+                android:background="@drawable/drawable_connection_block"
                 android:orientation="vertical"
-                android:padding="10dp">
+                android:paddingBottom="@dimen/space_30dp"
+                android:paddingEnd="@dimen/space_10dp"
+                android:paddingStart="@dimen/space_10dp"
+                android:paddingTop="@dimen/space_10dp">
 
                 <CheckBox
                     android:id="@+id/a_settings_auto_start_local"
@@ -63,34 +69,37 @@
                     android:id="@+id/a_settings_auto_start_global"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
+                    android:textColor="@drawable/selector_change_white_color_to_blue_color"
                     android:text="@string/app_settings_auto_start_global" />
 
                 <TextView
-                    android:id="@+id/textView5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/app_settings_server_address"
+                    android:textColor="@color/app_white_50"
                     android:textSize="12sp" />
 
                 <EditText
                     android:id="@+id/a_settings_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:background="@drawable/border_l_gray_with_small_corners"
+                    android:background="@drawable/selector_white_50_to_light_blue_bottom_edit_text_view"
                     android:digits="0123456789."
                     android:inputType="number"
-                    android:padding="5dp"
+                    android:paddingBottom="@dimen/space_5dp"
+                    android:textColor="@color/app_white"
+                    android:textCursorDrawable="@drawable/drawable_cursor_white"
                     android:textSize="14sp"
                     tools:ignore="LabelFor,TextFields" />
 
                 <TextView
-                    android:id="@+id/textView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/app_settings_server_port"
+                    android:textColor="@color/app_white_50"
                     android:textSize="12sp" />
 
                 <EditText
@@ -98,19 +107,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:background="@drawable/border_l_gray_with_small_corners"
+                    android:background="@drawable/selector_white_50_to_light_blue_bottom_edit_text_view"
                     android:digits="0123456789"
                     android:inputType="numberDecimal"
-                    android:padding="5dp"
+                    android:paddingBottom="@dimen/space_5dp"
+                    android:textColor="@color/app_white"
+                    android:textCursorDrawable="@drawable/drawable_cursor_white"
                     android:textSize="14sp"
                     tools:ignore="LabelFor,TextFields" />
 
                 <TextView
-                    android:id="@+id/textView6"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/app_settings_server_tts"
+                    android:textColor="@color/app_white_50"
                     android:textSize="12sp" />
 
                 <EditText
@@ -118,19 +129,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:background="@drawable/border_l_gray_with_small_corners"
+                    android:background="@drawable/selector_white_50_to_light_blue_bottom_edit_text_view"
                     android:digits="0123456789"
                     android:inputType="numberDecimal"
-                    android:padding="5dp"
+                    android:paddingBottom="@dimen/space_5dp"
+                    android:textColor="@color/app_white"
+                    android:textCursorDrawable="@drawable/drawable_cursor_white"
                     android:textSize="14sp"
                     tools:ignore="LabelFor" />
 
                 <TextView
-                    android:id="@+id/textView8"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/app_settings_server_id"
+                    android:textColor="@color/app_white_50"
                     android:textSize="12sp" />
 
                 <EditText
@@ -138,17 +151,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:background="@drawable/border_l_gray_with_small_corners"
-                    android:padding="5dp"
+                    android:background="@drawable/selector_white_50_to_light_blue_bottom_edit_text_view"
+                    android:paddingBottom="@dimen/space_5dp"
+                    android:textColor="@color/app_white"
+                    android:textCursorDrawable="@drawable/drawable_cursor_white"
                     android:textSize="14sp"
                     tools:ignore="LabelFor,TextFields" />
 
                 <TextView
-                    android:id="@+id/textView7"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/app_settings_server_prefix"
+                    android:textColor="@color/app_white_50"
                     android:textSize="12sp" />
 
                 <EditText
@@ -156,8 +171,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:background="@drawable/border_l_gray_with_small_corners"
-                    android:padding="5dp"
+                    android:background="@drawable/selector_white_50_to_light_blue_bottom_edit_text_view"
+                    android:paddingBottom="@dimen/space_5dp"
+                    android:textColor="@color/app_white"
+                    android:textCursorDrawable="@drawable/drawable_cursor_white"
                     android:textSize="14sp"
                     tools:ignore="LabelFor,TextFields" />
 
@@ -167,12 +184,12 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/app_settings_server_key"
+                    android:textColor="@color/app_white_50"
                     android:textSize="12sp" />
 
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
                     app:passwordToggleEnabled="true"
                     app:passwordToggleTint="@color/light_gray">
 
@@ -180,20 +197,48 @@
                         android:id="@+id/a_settings_key"
                         android:layout_width="match_parent"
                         android:layout_height="30dp"
-                        android:background="@drawable/border_l_gray_with_small_corners"
+                        android:background="@drawable/selector_white_50_to_light_blue_bottom_edit_text_view"
                         android:inputType="textPassword"
-                        android:padding="5dp"
+                        android:paddingBottom="@dimen/space_5dp"
+                        android:textColor="@color/app_white"
+                        android:textCursorDrawable="@drawable/drawable_cursor_white"
                         android:textSize="14sp" />
 
                 </android.support.design.widget.TextInputLayout>
 
 
-                <Button
-                    android:id="@+id/a_settings_save"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="@string/app_settings_save" />
+                    android:layout_marginTop="30dp"
+                    android:orientation="horizontal"
+                    android:paddingEnd="@dimen/space_30dp"
+                    android:paddingStart="@dimen/space_30dp">
+
+                    <Button
+                        android:id="@+id/a_settings_cancel"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/space_35dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
+                        android:textColor="@drawable/selector_change_white_color_to_blue_color"
+                        android:text="@string/app_settings_cancel" />
+
+                    <Space
+                        android:layout_width="@dimen/space_20dp"
+                        android:layout_height="match_parent" />
+
+                    <Button
+                        android:id="@+id/a_settings_save"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/space_35dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
+                        android:textColor="@drawable/selector_change_white_color_to_blue_color"
+                        android:text="@string/app_settings_save" />
+
+                </LinearLayout>
+
 
             </LinearLayout>
 
@@ -203,4 +248,4 @@
 
     </android.support.v4.widget.NestedScrollView>
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

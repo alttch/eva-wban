@@ -8,7 +8,6 @@
     <string name="app_choose_other_devices">Choose other</string>
 
     <string name="app_connecting_to">Connecting to</string><!--delete-->
-    <string name="app_connect_to">Connect to</string>
     <string name="app_disconnecting_from">Disconnecting from</string>
     <string name="app_disconnect_from">Disconnect from</string>
     <string name="app_reconnect_to">Reconnect to</string>
@@ -42,6 +41,7 @@
     <string name="app_settings_auto_start_exception_error">Error</string>
     <string name="app_settings_auto_start_exception_unsupportable_action">Unsupportable action</string>
 
+    <string name="app_settings_cancel">Cancel</string>
     <string name="app_settings_save">Save</string>
     <string name="app_settings_scan_qr">Scan QR</string>
     <string name="app_qr_io_error">QR IO ERROR</string>
