@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/actionBarSize"
+    android:background="#e5374289"
     app:contentInsetStart="0dp">
 
     <RelativeLayout

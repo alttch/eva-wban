@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/background_main"
     android:fitsSystemWindows="true"
     android:focusableInTouchMode="true"
-    android:background="@drawable/background_main"
     android:orientation="vertical">
-
-    <include
-        android:id="@+id/title_bar"
-        layout="@layout/title_bar_a_settings" />
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:overScrollMode="never">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -23,19 +20,24 @@
             android:orientation="vertical"
             android:padding="10dp">
 
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="?android:attr/actionBarSize" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_25dp"
                 android:orientation="vertical"
-                android:paddingEnd="@dimen/space_20dp"
-                android:paddingStart="@dimen/space_20dp">
+                android:paddingEnd="@dimen/space_35dp"
+                android:paddingStart="@dimen/space_35dp">
 
                 <Button
                     android:id="@+id/a_settings_barcode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/app_settings_scan_qr"
                     android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
+                    android:text="@string/app_settings_scan_qr"
                     android:textColor="@drawable/selector_change_white_color_to_blue_color" />
 
             </LinearLayout>
@@ -54,38 +56,19 @@
                 android:paddingStart="@dimen/space_10dp"
                 android:paddingTop="@dimen/space_10dp">
 
-                <CheckBox
-                    android:id="@+id/a_settings_auto_start_local"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:button="@drawable/selector_checkbox"
-                    android:checked="false"
-                    android:paddingStart="10dp"
-                    android:text="@string/app_settings_auto_start_local"
-                    android:textSize="12sp"
-                    tools:ignore="RtlSymmetry" />
-
-                <Button
-                    android:id="@+id/a_settings_auto_start_global"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
-                    android:textColor="@drawable/selector_change_white_color_to_blue_color"
-                    android:text="@string/app_settings_auto_start_global" />
-
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/app_settings_server_address"
-                    android:textColor="@color/app_white_50"
+                    android:textColor="@color/app_white_65"
                     android:textSize="12sp" />
 
                 <EditText
                     android:id="@+id/a_settings_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/selector_white_50_to_light_blue_bottom_edit_text_view"
+                    android:background="@drawable/selector_white_40_to_light_blue_bottom_edit_text_view"
                     android:digits="0123456789."
                     android:inputType="number"
                     android:paddingBottom="@dimen/space_5dp"
@@ -99,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/app_settings_server_port"
-                    android:textColor="@color/app_white_50"
+                    android:textColor="@color/app_white_65"
                     android:textSize="12sp" />
 
                 <EditText
@@ -107,7 +90,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:background="@drawable/selector_white_50_to_light_blue_bottom_edit_text_view"
+                    android:background="@drawable/selector_white_40_to_light_blue_bottom_edit_text_view"
                     android:digits="0123456789"
                     android:inputType="numberDecimal"
                     android:paddingBottom="@dimen/space_5dp"
@@ -121,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/app_settings_server_tts"
-                    android:textColor="@color/app_white_50"
+                    android:textColor="@color/app_white_65"
                     android:textSize="12sp" />
 
                 <EditText
@@ -129,7 +112,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:background="@drawable/selector_white_50_to_light_blue_bottom_edit_text_view"
+                    android:background="@drawable/selector_white_40_to_light_blue_bottom_edit_text_view"
                     android:digits="0123456789"
                     android:inputType="numberDecimal"
                     android:paddingBottom="@dimen/space_5dp"
@@ -143,7 +126,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/app_settings_server_id"
-                    android:textColor="@color/app_white_50"
+                    android:textColor="@color/app_white_65"
                     android:textSize="12sp" />
 
                 <EditText
@@ -151,7 +134,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:background="@drawable/selector_white_50_to_light_blue_bottom_edit_text_view"
+                    android:background="@drawable/selector_white_40_to_light_blue_bottom_edit_text_view"
                     android:paddingBottom="@dimen/space_5dp"
                     android:textColor="@color/app_white"
                     android:textCursorDrawable="@drawable/drawable_cursor_white"
@@ -163,7 +146,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/app_settings_server_prefix"
-                    android:textColor="@color/app_white_50"
+                    android:textColor="@color/app_white_65"
                     android:textSize="12sp" />
 
                 <EditText
@@ -171,7 +154,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:background="@drawable/selector_white_50_to_light_blue_bottom_edit_text_view"
+                    android:background="@drawable/selector_white_40_to_light_blue_bottom_edit_text_view"
                     android:paddingBottom="@dimen/space_5dp"
                     android:textColor="@color/app_white"
                     android:textCursorDrawable="@drawable/drawable_cursor_white"
@@ -184,45 +167,71 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="@string/app_settings_server_key"
-                    android:textColor="@color/app_white_50"
+                    android:textColor="@color/app_white_65"
                     android:textSize="12sp" />
 
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:counterEnabled="false"
+                    app:counterMaxLength="16"
+                    app:counterTextAppearance="@style/CustomCounterStyle"
+                    app:errorEnabled="false"
                     app:passwordToggleEnabled="true"
-                    app:passwordToggleTint="@color/light_gray">
-
+                    app:passwordToggleTint="@color/app_white_50">
+                    <!---->
                     <android.support.design.widget.TextInputEditText
                         android:id="@+id/a_settings_key"
                         android:layout_width="match_parent"
-                        android:layout_height="30dp"
-                        android:background="@drawable/selector_white_50_to_light_blue_bottom_edit_text_view"
+                        android:layout_height="@dimen/space_30dp"
+                        android:background="@drawable/selector_white_40_to_light_blue_bottom_edit_text_view"
                         android:inputType="textPassword"
-                        android:paddingBottom="@dimen/space_5dp"
+                        android:maxLength="16"
                         android:textColor="@color/app_white"
                         android:textCursorDrawable="@drawable/drawable_cursor_white"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        tools:ignore="RtlSymmetry" />
 
                 </android.support.design.widget.TextInputLayout>
 
+                <CheckBox
+                    android:id="@+id/a_settings_auto_start_local"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:button="@drawable/selector_checkbox"
+                    android:checked="false"
+                    android:paddingStart="10dp"
+                    android:text="@string/app_settings_auto_start_local"
+                    android:textColor="@color/app_white"
+                    android:textSize="12sp"
+                    tools:ignore="RtlSymmetry" />
+
+                <Button
+                    android:id="@+id/a_settings_auto_start_global"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
+                    android:text="@string/app_settings_auto_start_global"
+                    android:textColor="@drawable/selector_change_white_color_to_blue_color" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="30dp"
+                    android:gravity="center_horizontal"
                     android:orientation="horizontal"
-                    android:paddingEnd="@dimen/space_30dp"
-                    android:paddingStart="@dimen/space_30dp">
+                    android:weightSum="100">
 
                     <Button
                         android:id="@+id/a_settings_cancel"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/space_35dp"
-                        android:layout_weight="1"
+                        android:layout_weight="41"
                         android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
-                        android:textColor="@drawable/selector_change_white_color_to_blue_color"
-                        android:text="@string/app_settings_cancel" />
+                        android:text="@string/app_settings_cancel"
+                        android:textColor="@drawable/selector_change_white_color_to_blue_color" />
 
                     <Space
                         android:layout_width="@dimen/space_20dp"
@@ -232,10 +241,10 @@
                         android:id="@+id/a_settings_save"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/space_35dp"
-                        android:layout_weight="1"
+                        android:layout_weight="30"
                         android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
-                        android:textColor="@drawable/selector_change_white_color_to_blue_color"
-                        android:text="@string/app_settings_save" />
+                        android:text="@string/app_settings_save"
+                        android:textColor="@drawable/selector_change_white_color_to_blue_color" />
 
                 </LinearLayout>
 
@@ -248,4 +257,8 @@
 
     </android.support.v4.widget.NestedScrollView>
 
-</LinearLayout>
+    <include
+        android:id="@+id/title_bar"
+        layout="@layout/title_bar_a_settings" />
+
+</RelativeLayout>

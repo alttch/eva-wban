@@ -31,4 +31,9 @@
         <item name="android:statusBarColor" tools:targetApi="lollipop">@color/app_blue</item>
     </style>
 
+    <style name="CustomCounterStyle" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/app_white_50</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
 </resources>

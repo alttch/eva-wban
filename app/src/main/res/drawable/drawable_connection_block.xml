@@ -4,14 +4,14 @@
         <shape android:shape="rectangle">
             <solid android:color="@android:color/transparent" />
             <corners
-                android:bottomLeftRadius="@dimen/space_10dp"
-                android:bottomRightRadius="@dimen/space_10dp"
-                android:topLeftRadius="@dimen/space_10dp"
-                android:topRightRadius="@dimen/space_10dp" />
+                android:bottomLeftRadius="@dimen/space_20dp"
+                android:bottomRightRadius="@dimen/space_20dp"
+                android:topLeftRadius="@dimen/space_20dp"
+                android:topRightRadius="@dimen/space_20dp" />
 
             <stroke
                 android:width="@dimen/space_1dp"
-                android:color="@color/app_blue" />
+                android:color="#4d251c63" />
         </shape>
     </item>
     <item
@@ -21,12 +21,12 @@
         android:top="@dimen/space_3dp">
 
         <shape android:shape="rectangle">
-            <solid android:color="@color/app_blue" />
+            <solid android:color="#69251c63" />
             <corners
-                android:bottomLeftRadius="@dimen/space_10dp"
-                android:bottomRightRadius="@dimen/space_10dp"
-                android:topLeftRadius="@dimen/space_10dp"
-                android:topRightRadius="@dimen/space_10dp" />
+                android:bottomLeftRadius="@dimen/space_20dp"
+                android:bottomRightRadius="@dimen/space_20dp"
+                android:topLeftRadius="@dimen/space_20dp"
+                android:topRightRadius="@dimen/space_20dp" />
         </shape>
 
     </item>

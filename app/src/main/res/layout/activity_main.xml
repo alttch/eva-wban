@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:background="@drawable/background_main">
+    android:background="@drawable/background_main"
+    android:fitsSystemWindows="true">
 
     <include
         android:id="@+id/title_bar"
@@ -20,16 +20,32 @@
         app:layout_constraintBottom_toTopOf="@+id/include"
         app:layout_constraintTop_toBottomOf="@+id/title_bar">
 
+        <TextView
+            android:id="@+id/a_main_connection_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/space_60dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:minLines="1"
+            android:singleLine="true"
+            android:text="@string/app_connection_status_enactive"
+            android:textColor="@color/app_white"
+            android:textStyle="bold" />
+
         <include
             layout="@layout/fragment_a_main_connection_block"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_60dp" />
 
         <Button
             android:id="@+id/a_main_debug_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/app_main_debug" />
+            android:text="@string/app_main_debug"
+            android:visibility="invisible" />
 
         <TextView
             android:id="@+id/a_main_debug_data"

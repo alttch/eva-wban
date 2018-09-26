@@ -19,6 +19,8 @@ import com.altertech.scanner.ui.devices.DevicesAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.droidsonroids.gif.GifImageView;
+
 public class DeviceActivity extends AppCompatActivity {
 
     private DeviceManager deviceManager;
@@ -110,7 +112,8 @@ public class DeviceActivity extends AppCompatActivity {
 
     private void changeControlsState(boolean scanning) {
         findViewById(R.id.a_device_scan).setEnabled(!scanning);
-        findViewById(R.id.a_device_progress).setVisibility(scanning ? View.VISIBLE : View.GONE);
+        ((GifImageView) findViewById(R.id.a_device_progress)).setImageResource(scanning ? R.drawable.progress_gif : R.drawable.ic_launcher_background);
+        findViewById(R.id.a_device_items_container).setVisibility(scanning ? View.GONE : View.VISIBLE);
     }
 
     @Override

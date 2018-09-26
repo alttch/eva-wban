@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/space_5dp"
+    android:layout_marginBottom="@dimen/space_10dp"
+    android:background="@drawable/selector_change_different_color_to_simple_color"
     android:orientation="vertical"
     android:padding="@dimen/space_5dp">
 
@@ -10,22 +11,27 @@
         android:id="@+id/vh_device_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/space_5dp"
-        android:textSize="@dimen/text_views_text_size_14sp"
-        android:textStyle="bold" />
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="@color/app_white_65"
+        android:textSize="@dimen/text_views_text_size_12sp" />
+
+    <TextView
+        android:id="@+id/vh_device_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_1dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="@color/app_white"
+        android:textSize="@dimen/text_views_text_size_14sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/space_1dp"
-        android:layout_marginStart="@dimen/space_5dp"
-        android:background="@color/light_gray" />
-
-    <TextView
-        android:id="@+id/vh_device_address"
-
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/space_5dp"
-        android:textSize="@dimen/text_views_text_size_12sp" />
+        android:layout_marginTop="@dimen/space_1dp"
+        android:background="@color/app_white_40" />
 
 </LinearLayout>

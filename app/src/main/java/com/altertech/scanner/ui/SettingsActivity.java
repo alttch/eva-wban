@@ -102,6 +102,13 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.a_settings_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SettingsActivity.this.onBackPressed();
+            }
+        });
+
         findViewById(R.id.a_settings_barcode).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
