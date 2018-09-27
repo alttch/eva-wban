@@ -229,9 +229,9 @@
                         android:layout_width="0dp"
                         android:layout_height="@dimen/space_35dp"
                         android:layout_weight="41"
-                        android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
+                        android:background="@drawable/selector_border_white_50_body_transparent_to_white_50_with_big_corners"
                         android:text="@string/app_settings_cancel"
-                        android:textColor="@drawable/selector_change_white_color_to_blue_color" />
+                        android:textColor="@drawable/selector_change_white_50_color_to_blue_color" />
 
                     <Space
                         android:layout_width="@dimen/space_20dp"
