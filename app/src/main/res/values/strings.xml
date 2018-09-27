@@ -11,10 +11,10 @@
     <string name="app_choose_other_devices">Choose other</string>
 
 
-    <string name="app_connecting_to">Connecting to</string><!--delete-->
-    <string name="app_disconnecting_from">Disconnecting from</string>
-    <string name="app_disconnect_from">Disconnect from</string>
-    <string name="app_reconnect_to">Reconnect to</string>
+    <string name="app_connecting">Connecting…</string><!--delete-->
+    <string name="app_disconnecting">Disconnecting…</string>
+    <string name="app_disconnect">Disconnect</string>
+    <string name="app_reconnect">Reconnect</string>
     <string name="app_choose_device">choose</string>
 
     <string name="app_progress_please_wait">Please wait</string>

@@ -229,21 +229,21 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             if (intent.getAction().equals(BluetoothLeService.StatusPair.ACTION_GATT_CONNECTING.getAction())) {
-                MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_connecting_to);
+                MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_connecting);
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setEnabled(false);
                 MainActivity.this.fragment_a_main_connection_block_choose_other_devices_button.setVisibility(View.GONE);
 
                 MainActivity.this.updateDeviceStateColorAndStatusText(false);
 
             } else if (intent.getAction().equals(BluetoothLeService.StatusPair.ACTION_GATT_CONNECTED.getAction())) {
-                MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_disconnect_from);
+                MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_disconnect);
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setEnabled(true);
                 MainActivity.this.fragment_a_main_connection_block_choose_other_devices_button.setVisibility(View.GONE);
 
                 MainActivity.this.updateDeviceStateColorAndStatusText(true);
 
             } else if (intent.getAction().equals(BluetoothLeService.StatusPair.ACTION_GATT_DISCONNECTING.getAction())) {
-                MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_disconnecting_from);
+                MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_disconnecting);
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setEnabled(false);
                 MainActivity.this.fragment_a_main_connection_block_choose_other_devices_button.setVisibility(View.GONE);
 
@@ -262,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
 
             } else if (intent.getAction().equals(BluetoothLeService.StatusPair.ACTION_GATT_RECONNECT.getAction())) {
 
-                MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_reconnect_to);
+                MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_reconnect);
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setEnabled(false);
                 MainActivity.this.fragment_a_main_connection_block_choose_other_devices_button.setVisibility(View.GONE);
 
@@ -281,9 +281,9 @@ public class MainActivity extends AppCompatActivity {
                 //MainActivity.this.a_main_last_device.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.app_connection_disconnected));
             } else if (intent.getAction().equals(BluetoothLeService.StatusPair.ACTION_GATT_KEEP_ONLINE.getAction())) {
 
-            } else if (intent.getAction().equals(BluetoothLeService.StatusPair.ACTION_GATT_NEW_DATA_NOT_AVAILABLE.getAction())) {
+            } /*else if (intent.getAction().equals(BluetoothLeService.StatusPair.ACTION_GATT_NEW_DATA_NOT_AVAILABLE.getAction())) {
                 MainActivity.this.updateDeviceStateColorAndStatusText(false);
-            } else {
+            }*/ else {
 
             }
 

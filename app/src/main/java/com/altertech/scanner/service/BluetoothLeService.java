@@ -62,8 +62,8 @@ public class BluetoothLeService extends Service {
         ACTION_GATT_ERROR(1004, "com.altertech.scanner.le.ACTION_GATT_ERROR"),
         ACTION_GATT_KEEP_ONLINE(1005, "com.altertech.scanner.le.ACTION_GATT_KEEP_ONLINE"),
         ACTION_GATT_RECONNECT(1006, "com.altertech.scanner.le.ACTION_GATT_RECONNECT"),
-        ACTION_GATT_RECEIVING(1007, "com.altertech.scanner.le.ACTION_GATT_RECEIVING"),
-        ACTION_GATT_NEW_DATA_NOT_AVAILABLE(1008, "com.altertech.scanner.le.ACTION_GATT_NEW_DATA_NOT_AVAILABLE");
+        ACTION_GATT_RECEIVING(1007, "com.altertech.scanner.le.ACTION_GATT_RECEIVING");
+        /* ACTION_GATT_NEW_DATA_NOT_AVAILABLE(1008, "com.altertech.scanner.le.ACTION_GATT_NEW_DATA_NOT_AVAILABLE");*/
 
         int id;
         String action;
@@ -113,9 +113,7 @@ public class BluetoothLeService extends Service {
 
     /*data*/
     private ReceiveData receiveData = new ReceiveData(0, new Date());
-    private Date systemDateTimeOfLastSuccessKeepOnline = new Date();
     private StatusPair status = StatusPair.ACTION_GATT_DISCONNECTED;
-    private StatusPair statusProgress = StatusPair.ACTION_GATT_DISCONNECTED;
     private StatusPair statusProgressUI = StatusPair.ACTION_GATT_DISCONNECTED;
 
     private boolean isOnline = false;
@@ -136,12 +134,17 @@ public class BluetoothLeService extends Service {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 BaseApplication.get(BluetoothLeService.this).setDevice(new Device(gatt.getDevice().getName(), gatt.getDevice().getAddress()).getPair());
-                BluetoothLeService.this.systemDateTimeOfLastSuccessKeepOnline = new Date();
                 BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_CONNECTED, false);
                 BluetoothLeService.this.gatt.discoverServices();
                 BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_DISCOVERING, false);
             } else {
+
                 BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.getById(newState), false);
+
+                if(newState == BluetoothProfile.STATE_DISCONNECTED){
+                    BluetoothLeService.this.getReceiveData().setupDateToNow();
+                    BluetoothLeService.this.connect(BaseApplication.get(BluetoothLeService.this).getAddress(), StatusPair.ACTION_GATT_RECONNECT);
+                }
             }
         }
 
@@ -170,7 +173,7 @@ public class BluetoothLeService extends Service {
                     int data = parsePulseValue(characteristic);
                     if (new Date().getTime() - BluetoothLeService.this.receiveData.dateSend.getTime() >= (BaseApplication.get(BluetoothLeService.this).getServerTTS() * 1000)) {
                         BluetoothLeService.this.receiveData = new ReceiveData(data, new Date());
-                        BluetoothLeService.this.send();
+                        BluetoothLeService.this.send(StringUtil.EMPTY_STRING);
                     } else {
                         BluetoothLeService.this.receiveData = new ReceiveData(data, BluetoothLeService.this.receiveData.getDateSend());
                     }
@@ -220,9 +223,9 @@ public class BluetoothLeService extends Service {
             super.onCharacteristicWrite(gatt, characteristic, status);
             if (status == BluetoothGatt.GATT_SUCCESS && characteristic.getUuid().equals(CharacteristicInstruction.CHARACTERISTIC_HEART_RATE_DATA_WRITE.getUuid())) {
                 if (characteristic.getValue() == DATA_HEART_RATE_KEEP_ONLINE) {
-                    BluetoothLeService.this.systemDateTimeOfLastSuccessKeepOnline = new Date();
+                    //BluetoothLeService.this.systemDateTimeOfLastSuccessKeepOnline = new Date();
                 } else if (characteristic.getValue() == DATA_HEART_RATE_READ_PULSE) {
-                    BluetoothLeService.this.systemDateTimeOfLastSuccessKeepOnline = new Date();
+                    //BluetoothLeService.this.systemDateTimeOfLastSuccessKeepOnline = new Date();
                     BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_RECEIVING, false);
                 }
             } else if (status == BluetoothGatt.GATT_SUCCESS && characteristic.getUuid().equals(CharacteristicInstruction.CHARACTERISTIC_AUTH.getUuid())) {
@@ -319,7 +322,6 @@ public class BluetoothLeService extends Service {
 
     public void connect(final String address, StatusPair status) {
         this.setStatusAndSendBroadcast(status, false);
-        this.systemDateTimeOfLastSuccessKeepOnline = new Date();
         if (this.gatt != null) {
             this.gatt.close();
         }
@@ -356,7 +358,11 @@ public class BluetoothLeService extends Service {
     }
 
     private void writeCharacteristic(BluetoothGattCharacteristic characteristic, byte[] data) throws BLEServiceException {
+        if (this.gatt == null || !this.status.equals(StatusPair.ACTION_GATT_CONNECTED)) {
+            return;
+        }
         characteristic.setValue(data);
+        ;
         boolean result = this.gatt.writeCharacteristic(characteristic);
         if (!result) {
             throw new BLEServiceException(ExceptionCodes.GATT_BAD_ACTION, "write characteristic = " + StringUtil.arrayAsString(data));
@@ -427,10 +433,6 @@ public class BluetoothLeService extends Service {
         return status;
     }
 
-    public StatusPair getStatusProgress() {
-        return statusProgress;
-    }
-
     public StatusPair getStatusProgressUI() {
         return statusProgressUI;
     }
@@ -465,18 +467,12 @@ public class BluetoothLeService extends Service {
         } else if (status.equals(StatusPair.ACTION_GATT_RECONNECT)
                 || status.equals(StatusPair.ACTION_GATT_CONNECTING)
                 || status.equals(StatusPair.ACTION_GATT_DISCONNECTING)) {
-            this.statusProgress = status;
             this.statusProgressUI = status;
         }
-
-        this.sendBroadcast(intent);
 
         if (this.foregroundNotificationEnabled) {
             if (statusProgressUI.equals(StatusPair.ACTION_GATT_DISCONNECTED)) {
                 NotificationUtils.show(this, UI || isOnline() || vibrationDisabled ? NotificationUtils.ChannelId.DEFAULT : NotificationUtils.ChannelId.DISCONNECTED, getResources().getString(R.string.app_main_notification_disconnected) + " " + BaseApplication.get(this).getName());
-                vibrationDisabled = true;
-            } else if (statusProgressUI.equals(StatusPair.ACTION_GATT_NEW_DATA_NOT_AVAILABLE)) {
-                NotificationUtils.show(this, UI || isOnline() || vibrationDisabled ? NotificationUtils.ChannelId.DEFAULT : NotificationUtils.ChannelId.ERROR, getResources().getString(R.string.app_main_notification_receive_error) + " " + BaseApplication.get(this).getName());
                 vibrationDisabled = true;
             } else {
                 if (status.equals(StatusPair.ACTION_GATT_CONNECTED)) {
@@ -492,9 +488,11 @@ public class BluetoothLeService extends Service {
                 : date + " -> " + (status.getAction().replace("com.altertech.scanner.le.ACTION_GATT_", ""));
         Log.d(TAG, message + " from UI => " + UI);
         if (logEnabled) {
-            this.log.append("\n").append(message).append(" from UI => ").append(UI);
+            if (!status.equals(StatusPair.ACTION_GATT_KEEP_ONLINE))
+                this.log.append("\n").append(message).append(" from UI => ").append(UI);
         }
 
+        this.sendBroadcast(intent);
     }
 
     private void setStatusAndSendBroadcast(StatusPair status, boolean UI) {
@@ -517,22 +515,36 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    public void send() {
+    public void send(String message) {
         if (this.udpClientSender == null) {
             this.udpClientSender = new UDP_CLIENT_SENDER();
+            this.udpClientSender.setMessage(message);
             TaskHelper.execute(this.udpClientSender);
         } else if (!this.udpClientSender.getStatus().equals(AsyncTask.Status.FINISHED)) {
             this.udpClientSender.cancel(true);
             this.udpClientSender = new UDP_CLIENT_SENDER();
+            this.udpClientSender.setMessage(message);
             TaskHelper.execute(this.udpClientSender);
         } else {
             this.udpClientSender = new UDP_CLIENT_SENDER();
+            this.udpClientSender.setMessage(message);
             TaskHelper.execute(this.udpClientSender);
         }
     }
 
     public String getLog() {
         return log.toString();
+    }
+
+    private void keep(BluetoothGattCharacteristic characteristic) {
+        /*----------------send keep----------------------*/
+        try {
+            BluetoothLeService.this.writeCharacteristic(characteristic, DATA_HEART_RATE_KEEP_ONLINE);
+            BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_KEEP_ONLINE, "keep", false);
+        } catch (BLEServiceException e) {
+            BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_ERROR, e.getDescription() + "( data -> " + e.getData() + ")", false);
+        }
+        /*-----------------------------------------------------------------------------------*/
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -555,25 +567,26 @@ public class BluetoothLeService extends Service {
         protected Void doInBackground(Void... voids) {
             BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_KEEP_ONLINE, "start", false);
             while (check) {
-                sleep(5000);
-                boolean isNewDateNotAvailable = new Date().getTime() - getReceiveData().getDate().getTime() > 7000;
-                if (isNewDateNotAvailable && BluetoothLeService.this.status.equals(StatusPair.ACTION_GATT_CONNECTED)) {
-                    BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_NEW_DATA_NOT_AVAILABLE, false);
-                }
-                if (BluetoothLeService.this.status.equals(StatusPair.ACTION_GATT_CONNECTED)) {
-                    try {
-                        BluetoothLeService.this.writeCharacteristic(characteristic, DATA_HEART_RATE_KEEP_ONLINE);
-                    } catch (BLEServiceException e) {
-                        BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_ERROR, e.getDescription() + "( data -> " + e.getData() + ")", false);
+                BluetoothLeService.this.sleep(5000);
+                if (!this.check) {
+                    BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_KEEP_ONLINE, "stop", false);
+                } else {
+
+                    boolean isNewDateNotAvailable = new Date().getTime() - getReceiveData().getDate().getTime() > 10000;
+                    if (isNewDateNotAvailable
+                            && !BluetoothLeService.this.statusProgressUI.equals(StatusPair.ACTION_GATT_RECONNECT)
+                            && !BluetoothLeService.this.statusProgressUI.equals(StatusPair.ACTION_GATT_CONNECTING)
+                            && !BluetoothLeService.this.statusProgressUI.equals(StatusPair.ACTION_GATT_DISCONNECTING)) {
+                        BluetoothLeService.this.getReceiveData().setupDateToNow();
+                        BluetoothLeService.this.connect(BaseApplication.get(BluetoothLeService.this).getAddress(), StatusPair.ACTION_GATT_RECONNECT);
+                    } else {
+                        if (BluetoothLeService.this.status.equals(StatusPair.ACTION_GATT_CONNECTED)) {
+                            BluetoothLeService.this.keep(characteristic);
+                        } else {
+                            BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_KEEP_ONLINE, "step", false);
+                        }
                     }
                 }
-                long sub = new Date().getTime() - BluetoothLeService.this.systemDateTimeOfLastSuccessKeepOnline.getTime();
-                if (sub >= 10000 || (BluetoothLeService.this.status.equals(StatusPair.ACTION_GATT_CONNECTED) && isNewDateNotAvailable)) {
-                    BluetoothLeService.this.connect(BaseApplication.get(BluetoothLeService.this).getAddress(), StatusPair.ACTION_GATT_RECONNECT);
-                } else {
-                    BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_KEEP_ONLINE, "step", false);
-                }
-
             }
             BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_KEEP_ONLINE, "stop", false);
             return null;
@@ -582,6 +595,12 @@ public class BluetoothLeService extends Service {
 
     @SuppressLint("StaticFieldLeak")
     private class UDP_CLIENT_SENDER extends AsyncTask<Void, Void, Void> {
+
+        private String mess = StringUtil.EMPTY_STRING;
+
+        public void setMessage(String mess) {
+            this.mess = mess;
+        }
 
         @Override
         protected Void doInBackground(Void... voids) {
@@ -632,6 +651,10 @@ public class BluetoothLeService extends Service {
 
         public Date getDateSend() {
             return dateSend;
+        }
+
+        public void setupDateToNow() {
+            this.date = new Date();
         }
 
         private String generateMessage() {
