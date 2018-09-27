@@ -362,7 +362,6 @@ public class BluetoothLeService extends Service {
             return;
         }
         characteristic.setValue(data);
-        ;
         boolean result = this.gatt.writeCharacteristic(characteristic);
         if (!result) {
             throw new BLEServiceException(ExceptionCodes.GATT_BAD_ACTION, "write characteristic = " + StringUtil.arrayAsString(data));
