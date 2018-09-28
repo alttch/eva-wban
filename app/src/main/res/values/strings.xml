@@ -12,18 +12,11 @@
     <string name="app_connecting_cancel">Cancel</string>
 
 
-    <string name="app_connecting">Connecting…</string><!--delete-->
+    <string name="app_connecting">Connecting…</string>
     <string name="app_disconnecting">Disconnecting…</string>
     <string name="app_disconnect">Disconnect</string>
-    <string name="app_reconnect">Reconnect</string>
-    <string name="app_choose_device">choose</string>
+    <string name="app_reconnect">Reconnecting…</string>
 
-    <string name="app_progress_please_wait">Please wait</string>
-    <string name="app_progress_connecting">connecting…</string>
-    <string name="app_progress_disconnecting">disconnecting…</string>
-    <string name="app_progress_discovering">discovering…</string>
-    <string name="app_progress_waiting_for_data">waiting for data…</string>
-    <string name="app_data">---</string>
     <string name="app_devices_scan">Scan</string>
 
     <string name="app_settings">Settings</string>
@@ -56,8 +49,9 @@
     <string name="app_main_quit">QUIT</string>
 
     <string name="app_main_notification_disconnected">biometric sensor disconnected:</string>
-    <string name="app_main_notification_receive_error">biometric sensor data error:</string>
-
-
+    <string name="app_main_notification_disconnecting">biometric sensor disconnecting:</string>
+    <string name="app_main_notification_connected">biometric sensor connected:</string>
+    <string name="app_main_notification_connecting">biometric sensor connecting:</string>
+    <string name="app_main_notification_reconnecting">biometric sensor reconnecting:</string>
 
 </resources>

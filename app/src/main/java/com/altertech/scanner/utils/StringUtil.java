@@ -16,17 +16,21 @@ public class StringUtil {
     }
 
     public static String arrayAsString(byte[] bytes) {
-        StringBuilder temp = new StringBuilder(EMPTY_STRING);
-        for (byte b : bytes) {
-            temp.append("[").append(b).append("]");
+        if (bytes != null) {
+            StringBuilder temp = new StringBuilder(EMPTY_STRING);
+            for (byte b : bytes) {
+                temp.append("[").append(b).append("]");
+            }
+            return temp.toString();
+        } else {
+            return "NULL";
         }
-        return temp.toString();
     }
 
     public static boolean isInteger(String s) {
         try {
             Integer.parseInt(s);
-        } catch(NumberFormatException | NullPointerException e) {
+        } catch (NumberFormatException | NullPointerException e) {
             return false;
         }
         return true;
