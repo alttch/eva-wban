@@ -27,8 +27,8 @@
         <!--<item name="android:statusBarColor" tools:targetApi="lollipop">@color/app_blue</item>-->
     </style>
 
-    <style name="Theme.Barcode" parent="Theme.Base">
-        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/app_blue</item>
+    <style name="Theme.Barcode" parent="Theme.Base.Full.Status">
+        <!--<item name="android:statusBarColor" tools:targetApi="lollipop">@color/app_blue</item>-->
     </style>
 
     <style name="CustomCounterStyle" parent="TextAppearance.AppCompat.Small">

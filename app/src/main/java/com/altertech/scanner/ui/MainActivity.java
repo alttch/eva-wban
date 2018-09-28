@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView fragment_a_main_connection_block_id;
     private Button fragment_a_main_connection_block_connect_disconnect_button;
     private Button fragment_a_main_connection_block_choose_other_devices_button;
+    private Button fragment_a_main_connection_block_cancel_button;
     private TextView a_main_connection_status;
     private TextView fragment_a_main_connection_block_device_name;
     private TextView fragment_a_main_connection_block_device_address;
@@ -145,6 +146,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        this.fragment_a_main_connection_block_cancel_button = findViewById(R.id.fragment_a_main_connection_block_cancel_button);
+        this.fragment_a_main_connection_block_cancel_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (MainActivity.this.bluetoothLeService.getStatusProgressUI().equals(BluetoothLeService.StatusPair.ACTION_GATT_CONNECTING) || MainActivity.this.bluetoothLeService.getStatusProgressUI().equals(BluetoothLeService.StatusPair.ACTION_GATT_RECONNECT)) {
+                    MainActivity.this.bluetoothLeService.disconnect();
+                }
+            }
+        });
+
         this.a_main_connection_status = findViewById(R.id.a_main_connection_status);
 
         this.fragment_a_main_connection_block_device_name = findViewById(R.id.fragment_a_main_connection_block_device_name);
@@ -232,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_connecting);
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setEnabled(false);
                 MainActivity.this.fragment_a_main_connection_block_choose_other_devices_button.setVisibility(View.GONE);
+                MainActivity.this.fragment_a_main_connection_block_cancel_button.setVisibility(View.VISIBLE);
 
                 MainActivity.this.updateDeviceStateColorAndStatusText(false);
 
@@ -239,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_disconnect);
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setEnabled(true);
                 MainActivity.this.fragment_a_main_connection_block_choose_other_devices_button.setVisibility(View.GONE);
+                MainActivity.this.fragment_a_main_connection_block_cancel_button.setVisibility(View.GONE);
 
                 MainActivity.this.updateDeviceStateColorAndStatusText(true);
 
@@ -246,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_disconnecting);
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setEnabled(false);
                 MainActivity.this.fragment_a_main_connection_block_choose_other_devices_button.setVisibility(View.GONE);
+                MainActivity.this.fragment_a_main_connection_block_cancel_button.setVisibility(View.GONE);
 
                 MainActivity.this.updateDeviceStateColorAndStatusText(false);
 
@@ -253,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_connect);
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setEnabled(StringUtil.isNotEmpty(MainActivity.this.application.getAddress()));
                 MainActivity.this.fragment_a_main_connection_block_choose_other_devices_button.setVisibility(View.VISIBLE);
+                MainActivity.this.fragment_a_main_connection_block_cancel_button.setVisibility(View.GONE);
 
                 MainActivity.this.updateDeviceStateColorAndStatusText(false);
 
@@ -265,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_reconnect);
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setEnabled(false);
                 MainActivity.this.fragment_a_main_connection_block_choose_other_devices_button.setVisibility(View.GONE);
+                MainActivity.this.fragment_a_main_connection_block_cancel_button.setVisibility(View.VISIBLE);
 
                 MainActivity.this.updateDeviceStateColorAndStatusText(false);
 
@@ -272,6 +288,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setText(R.string.app_connect);
                 MainActivity.this.fragment_a_main_connection_block_connect_disconnect_button.setEnabled(true);
                 MainActivity.this.fragment_a_main_connection_block_choose_other_devices_button.setVisibility(View.VISIBLE);
+                MainActivity.this.fragment_a_main_connection_block_cancel_button.setVisibility(View.GONE);
 
                 MainActivity.this.updateDeviceStateColorAndStatusText(false);
 

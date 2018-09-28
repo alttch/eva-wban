@@ -141,9 +141,8 @@ public class BluetoothLeService extends Service {
 
                 BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.getById(newState), false);
 
-                if(newState == BluetoothProfile.STATE_DISCONNECTED){
-                    BluetoothLeService.this.getReceiveData().setupDateToNow();
-                    BluetoothLeService.this.connect(BaseApplication.get(BluetoothLeService.this).getAddress(), StatusPair.ACTION_GATT_RECONNECT);
+                if (newState == BluetoothProfile.STATE_DISCONNECTED && BluetoothLeService.this.keepOnline != null) {
+                    BluetoothLeService.this.keepOnline.forceReconnectIfKeepOnlineActive();
                 }
             }
         }
@@ -328,6 +327,11 @@ public class BluetoothLeService extends Service {
         this.gatt = bluetoothAdapter.getRemoteDevice(address).connectGatt(this, false, bluetoothGattCallback);
     }
 
+    public void reconnect() {
+        BluetoothLeService.this.getReceiveData().setupDateToNow();
+        BluetoothLeService.this.connect(BaseApplication.get(BluetoothLeService.this).getAddress(), StatusPair.ACTION_GATT_RECONNECT);
+    }
+
     public void disconnect() {
         if (this.gatt != null) {
             this.gatt.disconnect();
@@ -403,7 +407,7 @@ public class BluetoothLeService extends Service {
     }
 
     private void keepOnlineStop() {
-        if (this.keepOnline != null && keepOnline.getStatus().equals(AsyncTask.Status.RUNNING) && this.keepOnline.check) {
+        if (this.keepOnline != null && /*keepOnline.getStatus().equals(AsyncTask.Status.RUNNING) &&*/ this.keepOnline.check) {
             this.keepOnline.setCheck(false);
         }
     }
@@ -576,8 +580,7 @@ public class BluetoothLeService extends Service {
                             && !BluetoothLeService.this.statusProgressUI.equals(StatusPair.ACTION_GATT_RECONNECT)
                             && !BluetoothLeService.this.statusProgressUI.equals(StatusPair.ACTION_GATT_CONNECTING)
                             && !BluetoothLeService.this.statusProgressUI.equals(StatusPair.ACTION_GATT_DISCONNECTING)) {
-                        BluetoothLeService.this.getReceiveData().setupDateToNow();
-                        BluetoothLeService.this.connect(BaseApplication.get(BluetoothLeService.this).getAddress(), StatusPair.ACTION_GATT_RECONNECT);
+                        BluetoothLeService.this.reconnect();
                     } else {
                         if (BluetoothLeService.this.status.equals(StatusPair.ACTION_GATT_CONNECTED)) {
                             BluetoothLeService.this.keep(characteristic);
@@ -590,6 +593,13 @@ public class BluetoothLeService extends Service {
             BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_KEEP_ONLINE, "stop", false);
             return null;
         }
+
+        public void forceReconnectIfKeepOnlineActive() {
+            if (this.check) {
+                BluetoothLeService.this.reconnect();
+            }
+        }
+
     }
 
     @SuppressLint("StaticFieldLeak")

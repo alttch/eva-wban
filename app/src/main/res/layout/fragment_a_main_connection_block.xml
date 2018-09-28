@@ -88,20 +88,25 @@
                 android:layout_width="@dimen/space_150dp"
                 android:layout_height="@dimen/space_30dp"
                 android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
-                android:textColor="@drawable/selector_change_white_color_to_blue_color"
                 android:text="@string/app_connect"
-                />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/space_10dp" />
+                android:textColor="@drawable/selector_change_white_color_to_blue_color" />
 
             <Button
                 android:id="@+id/fragment_a_main_connection_block_choose_other_devices_button"
                 android:layout_width="@dimen/space_150dp"
                 android:layout_height="@dimen/space_30dp"
+                android:layout_marginTop="@dimen/space_10dp"
                 android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
                 android:text="@string/app_choose_other_devices"
+                android:textColor="@drawable/selector_change_white_color_to_blue_color" />
+
+            <Button
+                android:id="@+id/fragment_a_main_connection_block_cancel_button"
+                android:layout_width="@dimen/space_150dp"
+                android:layout_height="@dimen/space_30dp"
+                android:layout_marginTop="@dimen/space_10dp"
+                android:background="@drawable/selector_border_white_body_transparent_to_white_with_big_corners"
+                android:text="@string/app_connecting_cancel"
                 android:textColor="@drawable/selector_change_white_color_to_blue_color" />
 
         </LinearLayout>
