@@ -186,32 +186,12 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.a_main_debug_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*MainActivity.this.isDebugEnabled = !MainActivity.this.isDebugEnabled;
+                MainActivity.this.isDebugEnabled = !MainActivity.this.isDebugEnabled;
                 MainActivity.this.a_main_debug_data.setVisibility(MainActivity.this.isDebugEnabled ? View.VISIBLE : View.GONE);
                 MainActivity.this.bluetoothLeService.setLogEnabled(MainActivity.this.isDebugEnabled);
                 if (MainActivity.this.isDebugEnabled) {
                     MainActivity.this.a_main_debug_data.setText(MainActivity.this.bluetoothLeService.getLog());
-                }*/
-
-                MainActivity.this.bluetoothLeService.send(0);
-
-                /*try {
-                    String message = MainActivity.this.bluetoothLeService.getReceiveData().getDataMessage(1);
-                    String hh = "gy54rg" + message;
-                } catch (IllegalBlockSizeException e) {
-                    e.printStackTrace();
-                } catch (InvalidKeyException e) {
-                    e.printStackTrace();
-                } catch (BadPaddingException e) {
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (NoSuchPaddingException e) {
-                    e.printStackTrace();
-                }*/
-
-                // NotificationUtils.show(MainActivity.this, NotificationUtils.ChannelId.DISCONNECTED, NotificationUtils.ChannelId.DISCONNECTED.getName());
-
+                }
             }
         });
 

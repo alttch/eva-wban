@@ -6,8 +6,8 @@ android {
         applicationId "com.altertech.scanner"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 2
-        versionName "2018092502"
+        versionCode 3
+        versionName "2018100803"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         setProperty("archivesBaseName", "EVA ICS WBAN Bridge")
     }
