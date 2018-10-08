@@ -31,6 +31,7 @@ import com.altertech.scanner.utils.AES256Cipher;
 import com.altertech.scanner.utils.NotificationUtils;
 import com.altertech.scanner.utils.StringUtil;
 
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -686,10 +687,10 @@ public class BluetoothLeService extends Service {
             }
         }
 
-        public String getDataMessage(int action) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
+        public String getDataMessage(int action) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException {
             String key = BaseApplication.get(BluetoothLeService.this.getBaseContext()).getServerKey();
             if (StringUtil.isNotEmpty(key)) {
-                return "|" + BaseApplication.get(BluetoothLeService.this.getBaseContext()).getServerID() + "|" + new String(AES256Cipher.encrypt(key.getBytes(), this.generateMessage(action).getBytes()));
+                return "|" + BaseApplication.get(BluetoothLeService.this.getBaseContext()).getServerID() + "|" + AES256Cipher.encrypt(key, this.generateMessage(action));
             } else {
                 return this.generateMessage(action);
             }

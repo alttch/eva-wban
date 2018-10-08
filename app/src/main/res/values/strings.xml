@@ -34,7 +34,7 @@
     <string name="app_settings_exception_bad_interval">Bad interval, min 1 second</string>
     <string name="app_settings_exception_bad_id">Bad ID</string>
     <string name="app_settings_exception_bad_input_code">Bad code</string>
-    <string name="app_settings_exception_bad_key">Bad key, the key should consist of 16 characters</string>
+    <string name="app_settings_exception_bad_key">Bad key, the key should consist of 32 characters</string>
 
     <string name="app_settings_auto_start_exception_error">Error</string>
     <string name="app_settings_auto_start_exception_unsupportable_action">Unsupportable action</string>

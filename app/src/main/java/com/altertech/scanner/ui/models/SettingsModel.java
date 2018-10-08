@@ -118,7 +118,7 @@ public class SettingsModel {
             throw new SettingsException(R.string.app_settings_exception_bad_interval);
         } else if (!StringUtil.isNotEmpty(id)) {
             throw new SettingsException(R.string.app_settings_exception_bad_id);
-        } else if (StringUtil.isNotEmpty(key) && key.length() != 16) {
+        } else if (StringUtil.isNotEmpty(key) && key.length() != 32) {
             throw new SettingsException(R.string.app_settings_exception_bad_key);
         }
     }

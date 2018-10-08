@@ -186,7 +186,7 @@
                         android:layout_height="@dimen/space_30dp"
                         android:background="@drawable/selector_white_40_to_light_blue_bottom_edit_text_view"
                         android:inputType="textPassword"
-                        android:maxLength="16"
+                        android:maxLength="32"
                         android:textColor="@color/app_white"
                         android:textCursorDrawable="@drawable/drawable_cursor_white"
                         android:textSize="14sp"
