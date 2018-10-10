@@ -31,13 +31,6 @@ import com.altertech.scanner.helpers.ToastHelper;
 import com.altertech.scanner.service.BluetoothLeService;
 import com.altertech.scanner.utils.StringUtil;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-
 
 public class MainActivity extends AppCompatActivity {
 

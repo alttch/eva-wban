@@ -26,12 +26,11 @@ import com.altertech.scanner.core.device.DeviceManagerException;
 import com.altertech.scanner.core.service.enums.BLEServiceException;
 import com.altertech.scanner.core.service.enums.CharacteristicInstruction;
 import com.altertech.scanner.core.service.enums.ServiceInstruction;
+import com.altertech.scanner.cryptography.fernet.Crypt;
 import com.altertech.scanner.helpers.TaskHelper;
-import com.altertech.scanner.utils.AES256Cipher;
 import com.altertech.scanner.utils.NotificationUtils;
 import com.altertech.scanner.utils.StringUtil;
 
-import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -474,14 +473,14 @@ public class BluetoothLeService extends Service {
         }
 
         if (status.equals(StatusPair.ACTION_GATT_CONNECTED)) {
-            if(this.foregroundNotificationEnabled) {
+            if (this.foregroundNotificationEnabled) {
                 NotificationUtils.show(this, !UI && !isOnline && !BluetoothLeService.this.wasConnected ? NotificationUtils.ChannelId.CONNECTED : NotificationUtils.ChannelId.DEFAULT, getResources().getString(R.string.app_main_notification_connected) + " " + BaseApplication.get(this).getName());
             }
             BluetoothLeService.this.wasConnected = true;
         } else if ((status.equals(StatusPair.ACTION_GATT_DISCONNECTED) || status.equals(StatusPair.ACTION_GATT_RECONNECT)) && !UI && BluetoothLeService.this.wasConnected) {
             this.status = StatusPair.ACTION_GATT_DISCONNECTED;
             BluetoothLeService.this.wasConnected = false;
-            if(this.foregroundNotificationEnabled) {
+            if (this.foregroundNotificationEnabled) {
                 NotificationUtils.show(this, !isOnline ? NotificationUtils.ChannelId.DISCONNECTED : NotificationUtils.ChannelId.DEFAULT, getResources().getString(status.equals(StatusPair.ACTION_GATT_DISCONNECTED) ? R.string.app_main_notification_disconnected : R.string.app_main_notification_reconnecting) + " " + BaseApplication.get(this).getName());
             }
             BluetoothLeService.this.send(1);
@@ -491,7 +490,7 @@ public class BluetoothLeService extends Service {
             if (statusProgressUI.equals(StatusPair.ACTION_GATT_DISCONNECTED)) {
                 NotificationUtils.show(this, NotificationUtils.ChannelId.DEFAULT, getResources().getString(R.string.app_main_notification_disconnected) + " " + BaseApplication.get(this).getName());
             } else if (statusProgressUI.equals(StatusPair.ACTION_GATT_CONNECTED)) {
-                NotificationUtils.show(this,  NotificationUtils.ChannelId.DEFAULT, getResources().getString(R.string.app_main_notification_connected) + " " + BaseApplication.get(this).getName());
+                NotificationUtils.show(this, NotificationUtils.ChannelId.DEFAULT, getResources().getString(R.string.app_main_notification_connected) + " " + BaseApplication.get(this).getName());
             } else if (statusProgressUI.equals(StatusPair.ACTION_GATT_CONNECTING)) {
                 NotificationUtils.show(this, NotificationUtils.ChannelId.DEFAULT, getResources().getString(R.string.app_main_notification_connecting) + " " + BaseApplication.get(this).getName());
             } else if (statusProgressUI.equals(StatusPair.ACTION_GATT_DISCONNECTING)) {
@@ -687,10 +686,10 @@ public class BluetoothLeService extends Service {
             }
         }
 
-        public String getDataMessage(int action) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException {
+        public String getDataMessage(int action) throws Exception {
             String key = BaseApplication.get(BluetoothLeService.this.getBaseContext()).getServerKey();
             if (StringUtil.isNotEmpty(key)) {
-                return "|" + BaseApplication.get(BluetoothLeService.this.getBaseContext()).getServerID() + "|" + AES256Cipher.encrypt(key, this.generateMessage(action));
+                return "|" + BaseApplication.get(BluetoothLeService.this.getBaseContext()).getServerID() + "|" + Crypt.encode(key, this.generateMessage(action));
             } else {
                 return this.generateMessage(action);
             }
