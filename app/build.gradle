@@ -4,7 +4,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.altertech.scanner"
-        minSdkVersion 26
+        minSdkVersion 19
         targetSdkVersion 27
         versionCode 4
         versionName "2018100804"
