@@ -6,7 +6,7 @@
 
 
     <string name="app_connection_status_active">CONNECTION ACTIVE</string>
-    <string name="app_connection_status_enactive">CONNECTION ENACTIVE</string>
+    <string name="app_connection_status_inactive">CONNECTION INACTIVE</string>
     <string name="app_connect">Connect</string>
     <string name="app_choose_other_devices">Choose other</string>
     <string name="app_connecting_cancel">Cancel</string>

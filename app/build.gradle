@@ -13,7 +13,7 @@ android {
     }
     buildTypes {
         debug {
-            resValue "string", "app_version","version:${defaultConfig.versionName}"
+            resValue "string", "app_build","build: ${defaultConfig.versionName}"
         }
         release {
             minifyEnabled false

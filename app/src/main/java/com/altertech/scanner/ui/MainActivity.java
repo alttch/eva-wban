@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateDeviceStateColorAndStatusText(boolean connected) {
 
-        MainActivity.this.a_main_connection_status.setText(connected ? R.string.app_connection_status_active : R.string.app_connection_status_enactive);
+        MainActivity.this.a_main_connection_status.setText(connected ? R.string.app_connection_status_active : R.string.app_connection_status_inactive);
 
         MainActivity.this.fragment_a_main_connection_block_device_name.setTextColor(ContextCompat.getColor(MainActivity.this, connected ? R.color.app_connection_connected : R.color.app_connection_disconnected));
         MainActivity.this.fragment_a_main_connection_block_device_address.setTextColor(ContextCompat.getColor(MainActivity.this, connected ? R.color.app_connection_connected : R.color.app_connection_disconnected));

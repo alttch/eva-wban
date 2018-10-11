@@ -30,7 +30,7 @@
             android:maxLines="1"
             android:minLines="1"
             android:singleLine="true"
-            android:text="@string/app_connection_status_enactive"
+            android:text="@string/app_connection_status_inactive"
             android:textColor="@color/app_white"
             android:textStyle="bold" />
 

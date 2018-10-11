@@ -26,7 +26,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/app_version"
+                android:text="@string/app_build"
                 android:textColor="@color/app_white"
                 android:textSize="@dimen/text_views_text_size_12sp" />
 
