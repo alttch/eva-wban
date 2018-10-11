@@ -245,9 +245,11 @@ public class BluetoothLeService extends Service {
                 } catch (BLEServiceException e) {
                     BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_ERROR, e.getDescription() + "( data -> " + e.getData() + ")", false);
                     if (BluetoothLeService.this.status.equals(StatusPair.ACTION_GATT_CONNECTED) && (e.getCode() == ExceptionCodes.GATT_SERVICE_NOT_FOUND.getCode() || e.getCode() == ExceptionCodes.GATT_CHARACTERISTIC_NOT_FOUND.getCode())) {
-                        BluetoothLeService.this.disconnect();
+                        //BluetoothLeService.this.disconnect();
+                        BluetoothLeService.this.runAfterSuccessfulConnection(null);
                     }
                 }
+                //BluetoothLeService.this.runAfterSuccessfulConnection(null);
             } else if (status == BluetoothGatt.GATT_SUCCESS && descriptor.getCharacteristic().getUuid().equals(CharacteristicInstruction.CHARACTERISTIC_AUTH.getUuid())) {
                 try {
                     BluetoothLeService.this.writeCharacteristic(descriptor.getCharacteristic(), new byte[]{2, 8});
@@ -558,11 +560,13 @@ public class BluetoothLeService extends Service {
 
     private void keep(BluetoothGattCharacteristic characteristic) {
         /*----------------send keep----------------------*/
-        try {
-            BluetoothLeService.this.writeCharacteristic(characteristic, DATA_HEART_RATE_KEEP_ONLINE);
-            BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_KEEP_ONLINE, "keep", false);
-        } catch (BLEServiceException e) {
-            BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_ERROR, e.getDescription() + "( data -> " + e.getData() + ")", false);
+        if (characteristic != null) {
+            try {
+                BluetoothLeService.this.writeCharacteristic(characteristic, DATA_HEART_RATE_KEEP_ONLINE);
+                BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_KEEP_ONLINE, "keep", false);
+            } catch (BLEServiceException e) {
+                BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_ERROR, e.getDescription() + "( data -> " + e.getData() + ")", false);
+            }
         }
         /*-----------------------------------------------------------------------------------*/
     }

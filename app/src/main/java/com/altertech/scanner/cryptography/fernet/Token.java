@@ -4,7 +4,8 @@ package com.altertech.scanner.cryptography.fernet;
   Created by oshevchuk on 10.10.2018
  */
 
-import java.io.ByteArrayInputStream;
+import android.util.Base64;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,27 +14,22 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Base64.Encoder;
-import java.util.Collection;
 import java.util.Random;
 
 import javax.crypto.spec.IvParameterSpec;
 
 import static com.altertech.scanner.cryptography.fernet.Constants.charset;
 import static com.altertech.scanner.cryptography.fernet.Constants.cipherTextBlockSize;
-import static com.altertech.scanner.cryptography.fernet.Constants.decoder;
-import static com.altertech.scanner.cryptography.fernet.Constants.encoder;
 import static com.altertech.scanner.cryptography.fernet.Constants.initializationVectorBytes;
-import static com.altertech.scanner.cryptography.fernet.Constants.minimumTokenBytes;
 import static com.altertech.scanner.cryptography.fernet.Constants.signatureBytes;
 import static com.altertech.scanner.cryptography.fernet.Constants.supportedVersion;
 import static com.altertech.scanner.cryptography.fernet.Constants.tokenStaticBytes;
 
 @SuppressWarnings({"PMD.TooManyMethods", "PMD.AvoidDuplicateLiterals"})
 public class Token {
-
+    /*222*/
     private final byte version;
-    private final Instant timestamp;
+    private final long timestamp;
     private final IvParameterSpec initializationVector;
     private final byte[] cipherText;
     private final byte[] hmac;
@@ -51,13 +47,10 @@ public class Token {
      * @param hmac                 the signature of the token
      */
     @SuppressWarnings({"PMD.ArrayIsStoredDirectly", "PMD.CyclomaticComplexity"})
-    protected Token(final byte version, final Instant timestamp, final IvParameterSpec initializationVector,
+    protected Token(final byte version, final long timestamp, final IvParameterSpec initializationVector,
                     final byte[] cipherText, final byte[] hmac) {
         if (version != supportedVersion) {
             throw new IllegalTokenException("Unsupported version: " + version);
-        }
-        if (timestamp == null) {
-            throw new IllegalTokenException("timestamp cannot be null");
         }
         if (initializationVector == null || initializationVector.getIV().length != initializationVectorBytes) {
             throw new IllegalTokenException("Initialization Vector must be 128 bits");
@@ -75,32 +68,6 @@ public class Token {
         this.hmac = hmac;
     }
 
-    @SuppressWarnings({"PMD.PrematureDeclaration", "PMD.DataflowAnomalyAnalysis"})
-    protected static Token fromBytes(final byte[] bytes) {
-        if (bytes.length < minimumTokenBytes) {
-            throw new IllegalTokenException("Not enough bits to generate a Token");
-        }
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
-            final DataInputStream dataStream = new DataInputStream(inputStream);
-            final byte version = dataStream.readByte();
-            final long timestampSeconds = dataStream.readLong();
-
-            final byte[] initializationVector = read(dataStream, initializationVectorBytes);
-            final byte[] cipherText = read(dataStream, bytes.length - tokenStaticBytes);
-            final byte[] hmac = read(dataStream, signatureBytes);
-
-            if (dataStream.read() != -1) {
-                throw new IllegalTokenException("more bits found");
-            }
-            return new Token(version, Instant.ofEpochSecond(timestampSeconds),
-                    new IvParameterSpec(initializationVector), cipherText, hmac);
-        } catch (final IOException ioe) {
-            // this should not happen as I/O is from memory and stream
-            // length is verified ahead of time
-            throw new IllegalStateException(ioe.getMessage(), ioe);
-        }
-    }
-
     protected static byte[] read(final DataInputStream stream, final int numBytes) throws IOException {
         final byte[] retval = new byte[numBytes];
         final int bytesRead = stream.read(retval);
@@ -108,17 +75,6 @@ public class Token {
             throw new IllegalTokenException("Not enough bits to generate a Token");
         }
         return retval;
-    }
-
-    /**
-     * Deserialise a Base64 URL Fernet token string. This does NOT validate that the token was generated using a valid {@link Key}.
-     *
-     * @param string the Base 64 URL encoding of a token in the form Version | Timestamp | IV | Ciphertext | HMAC
-     * @return a new Token
-     * @throws IllegalTokenException if the input string cannot be a valid token irrespective of key or timestamp
-     */
-    public static Token fromString(final String string) {
-        return fromBytes(decoder.decode(string));
     }
 
     /**
@@ -144,50 +100,9 @@ public class Token {
     public static Token generate(final Random random, final Key key, final byte[] payload) {
         final IvParameterSpec initializationVector = generateInitializationVector(random);
         final byte[] cipherText = key.encrypt(payload, initializationVector);
-        final Instant timestamp = Instant.now();
+        final long timestamp = System.currentTimeMillis() / 1000;
         final byte[] hmac = key.sign(supportedVersion, timestamp, initializationVector, cipherText);
         return new Token(supportedVersion, timestamp, initializationVector, cipherText, hmac);
-    }
-
-    /**
-     * Check the validity of this token.
-     *
-     * @param key       the secret key against which to validate the token
-     * @param validator an object that encapsulates the validation parameters (e.g. TTL)
-     * @return the decrypted, deserialised payload of this token
-     * @throws TokenValidationException if <em>key</em> was NOT used to generate this token
-     */
-    @SuppressWarnings("PMD.LawOfDemeter")
-    public <T> T validateAndDecrypt(final Key key, final Validator<T> validator) {
-        return validator.validateAndDecrypt(key, this);
-    }
-
-    /**
-     * Check the validity of this token against a collection of keys. Use this if you have implemented key rotation.
-     *
-     * @param keys      the active keys which may have been used to generate token
-     * @param validator an object that encapsulates the validation parameters (e.g. TTL)
-     * @return the decrypted, deserialised payload of this token
-     * @throws TokenValidationException if none of the keys were used to generate this token
-     */
-    @SuppressWarnings("PMD.LawOfDemeter")
-    public <T> T validateAndDecrypt(final Collection<? extends Key> keys, final Validator<T> validator) throws Throwable {
-        return validator.validateAndDecrypt(keys, this);
-    }
-
-    @SuppressWarnings({"PMD.ConfusingTernary", "PMD.LawOfDemeter"})
-    protected byte[] validateAndDecrypt(final Key key, final Instant earliestValidInstant,
-                                        final Instant latestValidInstant) {
-        if (getVersion() != (byte) 0x80) {
-            throw new TokenValidationException("Invalid version");
-        } else if (!getTimestamp().isAfter(earliestValidInstant)) {
-            throw new TokenExpiredException("Token is expired");
-        } else if (!getTimestamp().isBefore(latestValidInstant)) {
-            throw new TokenValidationException("Token timestamp is in the future (clock skew).");
-        } else if (!isValidSignature(key)) {
-            throw new TokenValidationException("Signature does not match.");
-        }
-        return key.decrypt(getCipherText(), getInitializationVector());
     }
 
     /**
@@ -198,7 +113,7 @@ public class Token {
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream(
                 tokenStaticBytes + getCipherText().length)) {
             writeTo(byteStream);
-            return getEncoder().encodeToString(byteStream.toByteArray());
+            return Base64.encodeToString(byteStream.toByteArray(), Base64.DEFAULT);
         } catch (final IOException e) {
             // this should not happen as IO is to memory only
             throw new IllegalStateException(e.getMessage(), e);
@@ -215,7 +130,7 @@ public class Token {
     public void writeTo(final OutputStream outputStream) throws IOException {
         try (DataOutputStream dataStream = new DataOutputStream(outputStream)) {
             dataStream.writeByte(getVersion());
-            dataStream.writeLong(getTimestamp().getEpochSecond());
+            dataStream.writeLong(System.currentTimeMillis() / 1000);
             dataStream.write(getInitializationVector().getIV());
             dataStream.write(getCipherText());
             dataStream.write(getHmac());
@@ -232,7 +147,7 @@ public class Token {
     /**
      * @return the time that this token was generated
      */
-    public Instant getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
@@ -247,7 +162,7 @@ public class Token {
         final StringBuilder builder = new StringBuilder(107);
         builder.append("Token [version=").append(String.format("0x%x", new BigInteger(1, new byte[]{getVersion()})))
                 .append(", timestamp=").append(getTimestamp())
-                .append(", hmac=").append(encoder.encodeToString(getHmac())).append(']');
+                .append(", hmac=").append(Base64.encodeToString(getHmac(), Base64.DEFAULT)).append(']');
         return builder.toString();
     }
 
@@ -271,10 +186,6 @@ public class Token {
         final byte[] computedHmac = key.sign(getVersion(), getTimestamp(), getInitializationVector(),
                 getCipherText());
         return Arrays.equals(getHmac(), computedHmac);
-    }
-
-    protected Encoder getEncoder() {
-        return encoder;
     }
 
     /**

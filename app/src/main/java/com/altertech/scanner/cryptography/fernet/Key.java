@@ -4,6 +4,8 @@ package com.altertech.scanner.cryptography.fernet;
   Created by oshevchuk on 10.10.2018
  */
 
+import android.util.Base64;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -11,9 +13,7 @@ import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
 import java.util.Arrays;
-import java.util.Base64.Encoder;
 import java.util.Random;
 
 import javax.crypto.BadPaddingException;
@@ -25,8 +25,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import static com.altertech.scanner.cryptography.fernet.Constants.cipherTransformation;
-import static com.altertech.scanner.cryptography.fernet.Constants.decoder;
-import static com.altertech.scanner.cryptography.fernet.Constants.encoder;
 import static com.altertech.scanner.cryptography.fernet.Constants.encryptionAlgorithm;
 import static com.altertech.scanner.cryptography.fernet.Constants.encryptionKeyBytes;
 import static com.altertech.scanner.cryptography.fernet.Constants.fernetKeyBytes;
@@ -74,7 +72,7 @@ public class Key {
      * @param string a Base 64 URL string in the format Signing-key (128 bits) || Encryption-key (128 bits)
      */
     public Key(final String string) {
-        this(decoder.decode(string));
+        this(Base64.decode(string, Base64.DEFAULT));
     }
 
     /**
@@ -111,7 +109,7 @@ public class Key {
      * @param cipherText           the encrypted content of the token
      * @return the HMAC signature
      */
-    public byte[] sign(final byte version, final Instant timestamp, final IvParameterSpec initializationVector,
+    public byte[] sign(final byte version, final long timestamp, final IvParameterSpec initializationVector,
                        final byte[] cipherText) {
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream(
                 getTokenPrefixBytes() + cipherText.length)) {
@@ -185,7 +183,7 @@ public class Key {
     public String serialise() {
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream(fernetKeyBytes)) {
             writeTo(byteStream);
-            return getEncoder().encodeToString(byteStream.toByteArray());
+            return Base64.encodeToString(byteStream.toByteArray(), Base64.DEFAULT);
         } catch (final IOException ioe) {
             // this should not happen as I/O is to memory
             throw new IllegalStateException(ioe.getMessage(), ioe);
@@ -227,12 +225,12 @@ public class Key {
     }
 
     @SuppressWarnings("PMD.LawOfDemeter")
-    protected byte[] sign(final byte version, final Instant timestamp, final IvParameterSpec initializationVector,
+    protected byte[] sign(final byte version, final long timestamp, final IvParameterSpec initializationVector,
                           final byte[] cipherText, final ByteArrayOutputStream byteStream)
             throws IOException {
         try (DataOutputStream dataStream = new DataOutputStream(byteStream)) {
             dataStream.writeByte(version);
-            dataStream.writeLong(timestamp.getEpochSecond());
+            dataStream.writeLong(timestamp);
             dataStream.write(initializationVector.getIV());
             dataStream.write(cipherText);
 
@@ -297,10 +295,6 @@ public class Key {
 
     protected String getEncryptionAlgorithm() {
         return encryptionAlgorithm;
-    }
-
-    protected Encoder getEncoder() {
-        return encoder;
     }
 
     protected String getCipherTransformation() {

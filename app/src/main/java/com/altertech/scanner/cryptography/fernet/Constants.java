@@ -1,6 +1,7 @@
 package com.altertech.scanner.cryptography.fernet;
 
 import java.nio.charset.Charset;
+import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 
@@ -13,8 +14,6 @@ import static java.util.Base64.getUrlEncoder;
 class Constants {
 
     static final Charset charset = UTF_8;
-    static final Encoder encoder = getUrlEncoder();
-    static final Decoder decoder = getUrlDecoder();
     /**
      * The algorithm used to encrypt the token contents.
      */
