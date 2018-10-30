@@ -38,16 +38,19 @@ public class SettingsModel {
 
     private String key;
 
+    private boolean send_partial_data_state;
+
     public SettingsModel() {
     }
 
-    public SettingsModel(String host, String port, String interval, String prefix, String id, String key) {
+    public SettingsModel(String host, String port, String interval, String prefix, String id, String key, boolean send_partial_data_state) {
         this.host = host;
         this.port = port;
         this.interval = interval;
         this.prefix = prefix;
         this.id = id;
         this.key = key;
+        this.send_partial_data_state = send_partial_data_state;
     }
 
     public String getHost() {
@@ -96,6 +99,14 @@ public class SettingsModel {
                             case "key":
                                 this.key = pair[1];
                                 break;
+                            case "send_partial_data":
+                                if (StringUtil.isInteger(pair[1]) && (Integer.valueOf(pair[1]) == 1 || Integer.valueOf(pair[1]) == 0)) {
+                                    this.send_partial_data_state = Integer.valueOf(pair[1]) == 1;
+                                } else {
+                                    throw new SettingsException(R.string.app_settings_exception_bad_input_code);
+                                }
+
+                                break;
                         }
                     }
                 }
@@ -119,7 +130,7 @@ public class SettingsModel {
         } else if (!StringUtil.isNotEmpty(id)) {
             throw new SettingsException(R.string.app_settings_exception_bad_id);
         } else if (StringUtil.isNotEmpty(key) && key.length() != 32) {
-           // throw new SettingsException(R.string.app_settings_exception_bad_key);
+            // throw new SettingsException(R.string.app_settings_exception_bad_key);
         }
     }
 
@@ -135,6 +146,7 @@ public class SettingsModel {
         application.setServerPrefix(prefix);
         application.setServerID(id);
         application.setServerKey(key);
+        application.setSendPartialDataState(send_partial_data_state);
 
     }
 }

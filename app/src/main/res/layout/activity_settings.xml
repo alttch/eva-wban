@@ -194,6 +194,19 @@
                 </android.support.design.widget.TextInputLayout>
 
                 <CheckBox
+                    android:id="@+id/a_settings_send_partial_data"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:button="@drawable/selector_checkbox"
+                    android:checked="false"
+                    android:paddingStart="10dp"
+                    android:text="@string/app_settings_send_partial_data"
+                    android:textColor="@color/app_white"
+                    android:textSize="12sp"
+                    tools:ignore="RtlSymmetry" />
+
+                <CheckBox
                     android:id="@+id/a_settings_auto_start_local"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

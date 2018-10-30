@@ -115,7 +115,15 @@ public class BaseApplication extends Application implements AppConstants {
         return preferences.getBoolean(APP_AUTO_START_STATE, true);
     }
 
-    public boolean existDevice(){
+    public void setSendPartialDataState(boolean state) {
+        this.preferences.edit().putBoolean(APP_SEND_PARTIAL_DATA_STATE, state).apply();
+    }
+
+    public boolean getSendPartialDataState() {
+        return preferences.getBoolean(APP_SEND_PARTIAL_DATA_STATE, true);
+    }
+
+    public boolean existDevice() {
         return StringUtil.isNotEmpty(this.getAddress());
     }
 }

@@ -84,6 +84,10 @@ public class NotificationUtils {
     }
 
     public static void show(Context context, ChannelId channelId, String title) {
+        show(context, channelId, title, null);
+    }
+
+    public static void show(Context context, ChannelId channelId, String title, String body) {
         NotificationManager notificationManager = getNotificationManager(context);
         if (notificationManager != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -93,19 +97,21 @@ public class NotificationUtils {
                 Notification notification = new NotificationCompat.Builder(context, channelId.getId())
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING)
+                        .setContentText(body)
                         .setContentIntent(getIntent(context))
                         .build();
                 notificationManager.notify(NOTIFICATION_ID, notification);
             } else {
-                notificationManager.notify(NOTIFICATION_ID, generateSimpleNotification(context, channelId, title));
+                notificationManager.notify(NOTIFICATION_ID, generateSimpleNotification(context, channelId, title, body));
             }
         }
     }
 
-    private static Notification generateSimpleNotification(Context context, ChannelId channelId, String title) {
+    private static Notification generateSimpleNotification(Context context, ChannelId channelId, String title, String body) {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING)
+                .setContentText(body)
                 .setContentIntent(getIntent(context));
 
         if (channelId.equals(ChannelId.CONNECTED)) {
@@ -120,10 +126,15 @@ public class NotificationUtils {
         return notification.build();
     }
 
-    public static Notification generateBaseNotification(Context context, ChannelId channelId, String title) {
+    public static Notification generateBaseNotification(Context context, ChannelId channelId, String title){
+        return generateBaseNotification(context, channelId, title, null);
+    }
+
+    public static Notification generateBaseNotification(Context context, ChannelId channelId, String title, String body) {
         return new NotificationCompat.Builder(context, channelId.getId())
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title != null ? title : StringUtil.EMPTY_STRING)
+                .setContentText(body)
                 .setContentIntent(getIntent(context)).build();
     }
 

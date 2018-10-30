@@ -28,6 +28,7 @@
     <string name="app_settings_server_id">ID*:</string>
     <string name="app_settings_server_prefix">Prefix:</string>
     <string name="app_settings_server_key">Key:</string>
+    <string name="app_settings_send_partial_data">Send partial data</string>
 
     <string name="app_settings_exception_bad_host">Bad API Host</string>
     <string name="app_settings_exception_bad_port">Bad API Port</string>
@@ -48,10 +49,12 @@
     <string name="app_main_debug">DEBUG</string>
     <string name="app_main_quit">QUIT</string>
 
-    <string name="app_main_notification_disconnected">biometric sensor disconnected:</string>
-    <string name="app_main_notification_disconnecting">biometric sensor disconnecting:</string>
-    <string name="app_main_notification_connected">biometric sensor connected:</string>
-    <string name="app_main_notification_connecting">biometric sensor connecting:</string>
-    <string name="app_main_notification_reconnecting">biometric sensor reconnecting:</string>
+    <string name="app_location_service_disabled">GPS disabled, please turn on</string>
+
+    <string name="app_main_notification_disconnected">biometric sensor disconnected</string>
+    <string name="app_main_notification_disconnecting">biometric sensor disconnecting</string>
+    <string name="app_main_notification_connected">biometric sensor connected</string>
+    <string name="app_main_notification_connecting">biometric sensor connecting</string>
+    <string name="app_main_notification_reconnecting">biometric sensor reconnecting</string>
 
 </resources>

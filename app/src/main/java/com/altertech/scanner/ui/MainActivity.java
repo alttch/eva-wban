@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean needToConnectAfterActivityAction = true;
 
+    private boolean needToSetPartialAfterActivityAction = true;
+
     private boolean isDebugEnabled = false;
 
     @Override
@@ -110,16 +112,39 @@ public class MainActivity extends AppCompatActivity {
         }
         if (requestCode == IntentHelper.REQUEST_CODES.SETTINGS_ACTIVITY.getCode() && resultCode == Activity.RESULT_OK) {
             this.fragment_a_main_connection_block_id.setText(this.application.getServerID());
+
+            if (MainActivity.this.bluetoothLeService.partialServiceState != application.getSendPartialDataState()) {
+                this.needToSetPartialAfterActivityAction = true;
+                if(!application.getSendPartialDataState()){
+                    MainActivity.this.bluetoothLeService.stopPartialService();
+                }
+            }
         }
+        /*if (requestCode == 7931) {
+            LocationManager m = (LocationManager) getSystemService(LOCATION_SERVICE);
+            if (m != null && m.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                try {
+                    MainActivity.this.bluetoothLeService.startPartialService((LocationManager) getSystemService(LOCATION_SERVICE));
+                } catch (DeviceManagerException e) {
+                    ToastHelper.toast(MainActivity.this, e.getDescription());
+                }
+            }
+        }*/
 
         super.onActivityResult(requestCode, resultCode, data);
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         if (requestCode == 23424 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             IntentHelper.showDeviceActivity(MainActivity.this);
+        }
+        if (requestCode == 6784 && grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+            try {
+                MainActivity.this.bluetoothLeService.startPartialService();
+            } catch (DeviceManagerException e) {
+                ToastHelper.toast(MainActivity.this, e.getDescription());
+            }
         }
     }
 
@@ -191,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.fragment_a_main_quit_block_quit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MainActivity.this.bluetoothLeService.disconnect();
+                MainActivity.this.bluetoothLeService.quit();
                 MainActivity.this.finish();
             }
         });
@@ -313,12 +338,29 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
+    private void initializationSendPartialData() {
+        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 6784);
+        } else {
+            try {
+                MainActivity.this.bluetoothLeService.startPartialService();
+            } catch (DeviceManagerException e) {
+                if (e.getCode() == ExceptionCodes.LOCATION_SERVICE_TO_ENABLE_P_GPS.getCode()) {
+                    //startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 7931);
+                    ToastHelper.toast(MainActivity.this, R.string.app_location_service_disabled);
+                } else {
+                    ToastHelper.toast(MainActivity.this, e.getDescription());
+                }
+            }
+        }
+    }
+
+
     private boolean bound = false;
     private final ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
-            MainActivity.this.bound = true;
             MainActivity.this.bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             MainActivity.this.bluetoothLeService.setOnline(true);
             MainActivity.this.bluetoothLeService.sendUIStatus();
@@ -326,6 +368,14 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.needToConnectAfterActivityAction = false;
                 MainActivity.this.tryToConnect();
             }
+
+            /*location*/
+            if (MainActivity.this.needToSetPartialAfterActivityAction && !MainActivity.this.bluetoothLeService.partialServiceState && application.getSendPartialDataState()) {
+                MainActivity.this.needToSetPartialAfterActivityAction = false;
+                MainActivity.this.initializationSendPartialData();
+            }
+
+            MainActivity.this.bound = true;
         }
 
         @Override

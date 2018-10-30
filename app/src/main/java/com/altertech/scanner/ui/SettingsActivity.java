@@ -30,6 +30,7 @@ public class SettingsActivity extends AppCompatActivity {
     private EditText a_settings_id;
     private EditText a_settings_prefix;
     private EditText a_settings_key;
+    private CheckBox a_settings_send_partial_data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +81,9 @@ public class SettingsActivity extends AppCompatActivity {
         this.a_settings_key = findViewById(R.id.a_settings_key);
         this.a_settings_key.setText(String.valueOf(BaseApplication.get(SettingsActivity.this).getServerKey()));
 
+        this.a_settings_send_partial_data = findViewById(R.id.a_settings_send_partial_data);
+        this.a_settings_send_partial_data.setChecked(BaseApplication.get(SettingsActivity.this).getSendPartialDataState());
+
         findViewById(R.id.a_settings_save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -89,7 +93,9 @@ public class SettingsActivity extends AppCompatActivity {
                         a_settings_tts.getText().toString(),
                         a_settings_prefix.getText().toString(),
                         a_settings_id.getText().toString(),
-                        a_settings_key.getText().toString()
+                        a_settings_key.getText().toString(),
+                        a_settings_send_partial_data.isChecked()
+
                 );
                 try {
                     model.valid();

@@ -13,9 +13,17 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.altertech.scanner.BaseApplication;
@@ -30,14 +38,21 @@ import com.altertech.scanner.cryptography.fernet.Crypt;
 import com.altertech.scanner.helpers.TaskHelper;
 import com.altertech.scanner.utils.NotificationUtils;
 import com.altertech.scanner.utils.StringUtil;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -45,9 +60,51 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-public class BluetoothLeService extends Service {
+public class BluetoothLeService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     public final static String EXTRA_DATA = "com.altertech.scanner.le.EXTRA_DATA";
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        this.partialServiceState = true;
+
+        LocationRequest mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(1000)
+                .setFastestInterval(0);
+
+        this.keepPartialStop();
+        this.keepPartial = new KEEP_PARTIAL();
+        TaskHelper.execute(this.keepPartial);
+
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, new LocationListener() {
+
+            private Location last_location;
+
+            @Override
+            public void onLocationChanged(Location location) {
+                double speed = 0;
+                if (this.last_location != null) {
+                    double elapsedTime = (location.getTime() - this.last_location.getTime()) / 1000;
+                    speed = this.last_location.distanceTo(location) / elapsedTime;
+                }
+                this.last_location = location;
+                speed = (int) (Math.round(3.6 * (location.hasSpeed() ? location.getSpeed() : speed)));
+                receiveLocationData = new ReceiveLocationData((int) speed, location.getLatitude(), location.getLongitude());
+            }
+        });
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        this.partialServiceState = false;
+    }
 
     public enum StatusPair {
 
@@ -62,7 +119,10 @@ public class BluetoothLeService extends Service {
         ACTION_GATT_ERROR(1004, "com.altertech.scanner.le.ACTION_GATT_ERROR"),
         ACTION_GATT_KEEP_ONLINE(1005, "com.altertech.scanner.le.ACTION_GATT_KEEP_ONLINE"),
         ACTION_GATT_RECONNECT(1006, "com.altertech.scanner.le.ACTION_GATT_RECONNECT"),
-        ACTION_GATT_RECEIVING(1007, "com.altertech.scanner.le.ACTION_GATT_RECEIVING");
+        ACTION_GATT_RECEIVING(1007, "com.altertech.scanner.le.ACTION_GATT_RECEIVING"),
+        ACTION_LOCATION_SERVICE_DATA(1008, "com.altertech.scanner.le.ACTION_GATT_LOCATION_SERVICE_DATA"),
+        ACTION_LOCATION_SERVICE_ENABLED(1009, "com.altertech.scanner.le.ACTION_GATT_LOCATION_SERVICE_ENABLED"),
+        ACTION_LOCATION_SERVICE_DISABLED(10010, "com.altertech.scanner.le.ACTION_GATT_LOCATION_SERVICE_DISABLED");
         /* ACTION_GATT_NEW_DATA_NOT_AVAILABLE(1008, "com.altertech.scanner.le.ACTION_GATT_NEW_DATA_NOT_AVAILABLE");*/
 
         int id;
@@ -111,10 +171,16 @@ public class BluetoothLeService extends Service {
     private KEEP_ONLINE keepOnline;
     private UDP_CLIENT_SENDER udpClientSender;
 
+    private KEEP_PARTIAL keepPartial;
+
     /*data*/
     private ReceiveData receiveData = new ReceiveData(0, new Date());
     private StatusPair status = StatusPair.ACTION_GATT_DISCONNECTED;
     private StatusPair statusProgressUI = StatusPair.ACTION_GATT_DISCONNECTED;
+
+    private ReceiveLocationData receiveLocationData = new ReceiveLocationData(-1, -1, -1);
+
+    private AccelerometerBuffer accelerometerBuffer = new AccelerometerBuffer();
 
     private boolean isOnline = false;
 
@@ -172,7 +238,11 @@ public class BluetoothLeService extends Service {
                     int data = parsePulseValue(characteristic);
                     if (new Date().getTime() - BluetoothLeService.this.receiveData.dateSend.getTime() >= (BaseApplication.get(BluetoothLeService.this).getServerTTS() * 1000)) {
                         BluetoothLeService.this.receiveData = new ReceiveData(data, new Date());
-                        BluetoothLeService.this.send(0);
+                        try {
+                            BluetoothLeService.this.send(getReceiveData().getDataMessage(1));
+                        } catch (Exception e) {
+                            BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_ERROR, e.getMessage(), false);
+                        }
                     } else {
                         BluetoothLeService.this.receiveData = new ReceiveData(data, BluetoothLeService.this.receiveData.getDateSend());
                     }
@@ -275,8 +345,122 @@ public class BluetoothLeService extends Service {
         }
     };
 
+    @SuppressLint("StaticFieldLeak")
+    private class KEEP_PARTIAL extends AsyncTask<Void, Void, Void> {
+
+        private boolean check = true;
+
+        void setCheck(boolean check) {
+            this.check = check;
+        }
+
+        protected void onPreExecute() {
+            BluetoothLeService.this.startForegroundNotification(false);
+        }
+
+        protected Void doInBackground(Void... voids) {
+            int i = 0;
+            while (check) {
+                sleep(1000);
+                if (check /*&& !BluetoothLeService.this.foregroundNotificationEnabled*/) {
+                    NotificationUtils.show(BluetoothLeService.this, NotificationUtils.ChannelId.DEFAULT, getStatusDescriptionByStatusUI(), receiveLocationData.getData());
+                }
+                if (i == 1) {
+                    try {
+                        BluetoothLeService.this.send(receiveLocationData.getTrLat(),
+                                receiveLocationData.getTrLon(),
+                                receiveLocationData.getTrSpeed(),
+                                accelerometerBuffer.getTrMaxDelta(0),
+                                accelerometerBuffer.getTrMaxDelta(1),
+                                accelerometerBuffer.getTrMaxDelta(2)
+                        );
+                        accelerometerBuffer = new AccelerometerBuffer();
+                    } catch (Exception e) {
+                        BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_ERROR, e.getMessage(), false);
+                    }
+                    i = 0;
+                } else {
+                    i++;
+                }
+            }
+            return null;
+        }
+    }
+
+    public boolean partialServiceState = false;
+
+    private GoogleApiClient mGoogleApiClient;
+
+    @SuppressLint("MissingPermission")
+    public void startPartialService() throws DeviceManagerException {
+        if (this.mGoogleApiClient == null || !this.mGoogleApiClient.isConnected()) {
+            this.mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+            this.mGoogleApiClient.connect();
+        }
+        try {
+            this.initializationAccelerometer();
+        } catch (BLEServiceException e) {
+            BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_ERROR, e.getDescription() + "( data -> " + e.getData() + ")", false);
+        }
+    }
+
+    public void stopPartialService() {
+        this.disconnect_partial();
+    }
+
+    private SensorManager sensorManager;
+
+    private void initializationAccelerometer() throws BLEServiceException {
+        this.sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        if (this.sensorManager != null) {
+            Sensor accelerometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            if (accelerometer != null) {
+                this.accelerometerBuffer = new AccelerometerBuffer();
+                this.sensorManager.registerListener(this.sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+            } else {
+                throw new BLEServiceException(ExceptionCodes.SENSOR_ACCELEROMETER_NOT_SUPPORTED);
+            }
+
+        } else {
+            throw new BLEServiceException(ExceptionCodes.SENSOR_NOT_SUPPORTED);
+
+        }
+    }
+
+    private void disposeAccelerometer() {
+        if (this.sensorManager != null) {
+            this.sensorManager.unregisterListener(sensorEventListener);
+        }
+        this.accelerometerBuffer = new AccelerometerBuffer();
+    }
+
+    private SensorEventListener sensorEventListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent sensorEvent) {
+            Sensor mySensor = sensorEvent.sensor;
+            if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                float x = sensorEvent.values[0];
+                float y = sensorEvent.values[1];
+                float z = sensorEvent.values[2];
+                BluetoothLeService.this.accelerometerBuffer.put(0, x);
+                BluetoothLeService.this.accelerometerBuffer.put(1, y);
+                BluetoothLeService.this.accelerometerBuffer.put(2, z);
+            }
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int i) {
+
+        }
+    };
+
     @Override
     public void onCreate() {
+
     }
 
     @Override
@@ -304,7 +488,8 @@ public class BluetoothLeService extends Service {
 
     @Override
     public void onDestroy() {
-        this.stopForegroundNotification();
+        this.stopForegroundNotification_sensor();
+        this.stopForegroundNotification_partial();
     }
 
     public void check() throws DeviceManagerException {
@@ -336,7 +521,7 @@ public class BluetoothLeService extends Service {
 
     public void disconnect() {
         this.keepOnlineStop();
-        this.stopForegroundNotification();
+        this.stopForegroundNotification_sensor();
         if (this.gatt != null) {
             this.gatt.disconnect();
             this.gatt.close();
@@ -344,9 +529,25 @@ public class BluetoothLeService extends Service {
         this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_DISCONNECTED, false);
     }
 
+    public void disconnect_partial() {
+        this.partialServiceState = false;
+        this.keepPartialStop();
+        this.stopForegroundNotification_partial();
+        if (this.mGoogleApiClient != null) {
+            this.mGoogleApiClient.disconnect();
+            this.mGoogleApiClient = null;
+        }
+        this.disposeAccelerometer();
+    }
+
+    public void quit() {
+        this.disconnect();
+        this.disconnect_partial();
+    }
+
     public void runAfterSuccessfulConnection(BluetoothGattCharacteristic characteristic) {
         BluetoothLeService.this.keepOnlineStartIfNeed(characteristic);
-        BluetoothLeService.this.startForegroundNotification();
+        BluetoothLeService.this.startForegroundNotification(true);
     }
 
     private BluetoothGattCharacteristic getBluetoothGattCharacteristic(BluetoothGatt gatt, ServiceInstruction serviceInstruction, CharacteristicInstruction characteristicInstruction) throws BLEServiceException {
@@ -414,6 +615,12 @@ public class BluetoothLeService extends Service {
         }
     }
 
+    private void keepPartialStop() {
+        if (this.keepPartial != null && /*keepOnline.getStatus().equals(AsyncTask.Status.RUNNING) &&*/ this.keepPartial.check) {
+            this.keepPartial.setCheck(false);
+        }
+    }
+
     private byte[] getEncryptKey(byte[] prefix, byte[] key) {
         try {
             @SuppressLint("GetInstance") Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
@@ -452,17 +659,52 @@ public class BluetoothLeService extends Service {
 
     private boolean foregroundNotificationEnabled = false;
 
-    private void startForegroundNotification() {
-        this.startForeground(NotificationUtils.NOTIFICATION_ID, NotificationUtils.generateBaseNotification(this, NotificationUtils.ChannelId.DEFAULT, getResources().getString(R.string.app_main_notification_connected) + " " + BaseApplication.get(this).getName()));
-        this.foregroundNotificationEnabled = true;
+    private void startForegroundNotification(boolean sensor) {
+        this.startForeground(NotificationUtils.NOTIFICATION_ID, NotificationUtils.generateBaseNotification(this, NotificationUtils.ChannelId.DEFAULT, this.getStatusDescriptionByStatusUI(), this.partialServiceState ? this.receiveLocationData.getData() : null));
+        if (sensor) {
+            this.foregroundNotificationEnabled = true;
+        }
     }
 
-    private void stopForegroundNotification() {
-        this.stopForeground(true);
+    private void stopForegroundNotification_sensor() {
         this.foregroundNotificationEnabled = false;
+        if (!this.partialServiceState) {
+            this.stopForeground(true);
+        }
+    }
+
+    private void stopForegroundNotification_partial() {
+        this.partialServiceState = false;
+        if (!this.foregroundNotificationEnabled) {
+            this.stopForeground(true);
+        }
     }
 
     private boolean wasConnected = false;
+
+    private String getStatusDescriptionByStatusUI() {
+        String result = StringUtil.EMPTY_STRING;
+        if (this.statusProgressUI.equals(StatusPair.ACTION_GATT_DISCONNECTED)) {
+            result = getResources().getString(R.string.app_main_notification_disconnected);
+        } else if (this.statusProgressUI.equals(StatusPair.ACTION_GATT_CONNECTED)) {
+            result = getResources().getString(R.string.app_main_notification_connected);
+        } else if (this.statusProgressUI.equals(StatusPair.ACTION_GATT_CONNECTING)) {
+            result = getResources().getString(R.string.app_main_notification_connecting);
+        } else if (this.statusProgressUI.equals(StatusPair.ACTION_GATT_DISCONNECTING)) {
+            result = getResources().getString(R.string.app_main_notification_disconnecting);
+        } else if (this.statusProgressUI.equals(StatusPair.ACTION_GATT_RECONNECT)) {
+            result = getResources().getString(R.string.app_main_notification_reconnecting);
+        } else {
+            result = this.statusProgressUI.name();
+        }
+
+        return result + (StringUtil.isNotEmpty(this.getDeviceName()) ? " :" + this.getDeviceName() : StringUtil.EMPTY_STRING);
+
+    }
+
+    private String getDeviceName() {
+        return BaseApplication.get(this).getName();
+    }
 
     private void setStatusAndSendBroadcast(Intent intent, StatusPair status, boolean UI) {
         if (status.equals(StatusPair.ACTION_GATT_CONNECTED) || status.equals(StatusPair.ACTION_GATT_DISCONNECTED)) {
@@ -476,33 +718,26 @@ public class BluetoothLeService extends Service {
 
         if (status.equals(StatusPair.ACTION_GATT_CONNECTED)) {
             if (this.foregroundNotificationEnabled) {
-                NotificationUtils.show(this, !UI && !isOnline && !BluetoothLeService.this.wasConnected ? NotificationUtils.ChannelId.CONNECTED : NotificationUtils.ChannelId.DEFAULT, getResources().getString(R.string.app_main_notification_connected) + " " + BaseApplication.get(this).getName());
+                NotificationUtils.show(this, !UI && !isOnline && !BluetoothLeService.this.wasConnected ? NotificationUtils.ChannelId.CONNECTED : NotificationUtils.ChannelId.DEFAULT, this.getStatusDescriptionByStatusUI(), this.partialServiceState ? this.receiveLocationData.getData() : null);
             }
             BluetoothLeService.this.wasConnected = true;
         } else if ((status.equals(StatusPair.ACTION_GATT_DISCONNECTED) || status.equals(StatusPair.ACTION_GATT_RECONNECT)) && !UI && BluetoothLeService.this.wasConnected) {
             this.status = StatusPair.ACTION_GATT_DISCONNECTED;
             BluetoothLeService.this.wasConnected = false;
             if (this.foregroundNotificationEnabled) {
-                NotificationUtils.show(this, !isOnline ? NotificationUtils.ChannelId.DISCONNECTED : NotificationUtils.ChannelId.DEFAULT, getResources().getString(status.equals(StatusPair.ACTION_GATT_DISCONNECTED) ? R.string.app_main_notification_disconnected : R.string.app_main_notification_reconnecting) + " " + BaseApplication.get(this).getName());
+                NotificationUtils.show(this, !isOnline ? NotificationUtils.ChannelId.DISCONNECTED : NotificationUtils.ChannelId.DEFAULT, getResources().getString(status.equals(StatusPair.ACTION_GATT_DISCONNECTED) ? R.string.app_main_notification_disconnected : R.string.app_main_notification_reconnecting) + ": " + BaseApplication.get(this).getName(), this.partialServiceState ? this.receiveLocationData.getData() : null);
             }
-            BluetoothLeService.this.send(1);
+            try {
+                BluetoothLeService.this.send(getReceiveData().getDataMessage(-1));
+            } catch (Exception e) {
+                BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_ERROR, e.getMessage(), false);
+            }
         }
 
         if (this.foregroundNotificationEnabled) {
-            if (statusProgressUI.equals(StatusPair.ACTION_GATT_DISCONNECTED)) {
-                NotificationUtils.show(this, NotificationUtils.ChannelId.DEFAULT, getResources().getString(R.string.app_main_notification_disconnected) + " " + BaseApplication.get(this).getName());
-            } else if (statusProgressUI.equals(StatusPair.ACTION_GATT_CONNECTED)) {
-                NotificationUtils.show(this, NotificationUtils.ChannelId.DEFAULT, getResources().getString(R.string.app_main_notification_connected) + " " + BaseApplication.get(this).getName());
-            } else if (statusProgressUI.equals(StatusPair.ACTION_GATT_CONNECTING)) {
-                NotificationUtils.show(this, NotificationUtils.ChannelId.DEFAULT, getResources().getString(R.string.app_main_notification_connecting) + " " + BaseApplication.get(this).getName());
-            } else if (statusProgressUI.equals(StatusPair.ACTION_GATT_DISCONNECTING)) {
-                NotificationUtils.show(this, NotificationUtils.ChannelId.DEFAULT, getResources().getString(R.string.app_main_notification_disconnecting) + " " + BaseApplication.get(this).getName());
-            } else if (statusProgressUI.equals(StatusPair.ACTION_GATT_RECONNECT)) {
-                NotificationUtils.show(this, NotificationUtils.ChannelId.DEFAULT, getResources().getString(R.string.app_main_notification_reconnecting) + " " + BaseApplication.get(this).getName());
-            } else {
-                NotificationUtils.show(this, NotificationUtils.ChannelId.DEFAULT, this.statusProgressUI.name());
-            }
+            NotificationUtils.show(this, NotificationUtils.ChannelId.DEFAULT, this.getStatusDescriptionByStatusUI(), this.partialServiceState ? this.receiveLocationData.getData() : null);
         }
+
 
         String date = android.text.format.DateFormat.format("yyyy-MM-dd hh:mm:ss", new java.util.Date()).toString();
         String message = intent.hasExtra(EXTRA_DATA) ?
@@ -537,19 +772,19 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    public void send(int action) {
+    public void send(String... message) {
         if (this.udpClientSender == null) {
             this.udpClientSender = new UDP_CLIENT_SENDER();
-            this.udpClientSender.setAction(action);
+            this.udpClientSender.setMessage(message);
             TaskHelper.execute(this.udpClientSender);
         } else if (!this.udpClientSender.getStatus().equals(AsyncTask.Status.FINISHED)) {
             this.udpClientSender.cancel(true);
             this.udpClientSender = new UDP_CLIENT_SENDER();
-            this.udpClientSender.setAction(action);
+            this.udpClientSender.setMessage(message);
             TaskHelper.execute(this.udpClientSender);
         } else {
             this.udpClientSender = new UDP_CLIENT_SENDER();
-            this.udpClientSender.setAction(action);
+            this.udpClientSender.setMessage(message);
             TaskHelper.execute(this.udpClientSender);
         }
     }
@@ -619,10 +854,10 @@ public class BluetoothLeService extends Service {
     @SuppressLint("StaticFieldLeak")
     private class UDP_CLIENT_SENDER extends AsyncTask<Void, Void, Void> {
 
-        private int action = 0;
+        private String[] messages = new String[]{};
 
-        void setAction(int action) {
-            this.action = action;
+        public void setMessage(String... messages) {
+            this.messages = messages != null ? messages : new String[]{};
         }
 
         @Override
@@ -635,13 +870,17 @@ public class BluetoothLeService extends Service {
 
             DatagramSocket socket = null;
             try {
-                String message = action == 0 ? BluetoothLeService.this.receiveData.getDataMessage(1) : BluetoothLeService.this.receiveData.getDataMessage(-1);
-                DatagramPacket dp = new DatagramPacket(message.getBytes(), message.length(),
-                        InetAddress.getByName(host),
-                        BaseApplication.get(BluetoothLeService.this).getServerPort());
-                socket = new DatagramSocket();
-                socket.setBroadcast(true);
-                socket.send(dp);
+                //String message = action == 0 ? BluetoothLeService.this.receiveData.getDataMessage(1) : BluetoothLeService.this.receiveData.getDataMessage(-1);
+                for (String s : messages) {
+                    if (StringUtil.isNotEmpty(s)) {
+                        DatagramPacket dp = new DatagramPacket(s.getBytes(), s.length(),
+                                InetAddress.getByName(host),
+                                BaseApplication.get(BluetoothLeService.this).getServerPort());
+                        socket = new DatagramSocket();
+                        socket.setBroadcast(true);
+                        socket.send(dp);
+                    }
+                }
             } catch (Exception e) {
                 BluetoothLeService.this.setStatusAndSendBroadcast(StatusPair.ACTION_GATT_ERROR, e.getMessage(), false);
             } finally {
@@ -697,6 +936,139 @@ public class BluetoothLeService extends Service {
             } else {
                 return this.generateMessage(action);
             }
+        }
+    }
+
+    public class ReceiveLocationData {
+        int speed;
+        double lat;
+        double lon;
+
+        ReceiveLocationData(int speed, double lat, double lon) {
+            this.speed = speed;
+            this.lat = lat;
+            this.lon = lon;
+        }
+
+        public String getTrLat() throws Exception {
+            return generateMessageEncoded("lat", String.valueOf(lat));
+        }
+
+        public String getTrLon() throws Exception {
+            return generateMessageEncoded("lon", String.valueOf(lon));
+        }
+
+        public String getTrSpeed() throws Exception {
+            return generateMessageEncoded("speed", String.valueOf(speed));
+        }
+
+        String getData() {
+            return lat != -1 && lon != -1 ? String.format("lat:%s, lon:%s, speed:%s", String.valueOf(lat), String.valueOf(lon), String.valueOf(speed)) : StringUtil.EMPTY_STRING;
+        }
+    }
+
+    private class AccelerometerBuffer {
+
+        boolean lock = false;
+
+        List<Double> buffer_x;
+        List<Double> buffer_y;
+        List<Double> buffer_z;
+
+        AccelerometerBuffer() {
+            this.buffer_x = new ArrayList<Double>(1000);
+            this.buffer_y = new ArrayList<Double>(1000);
+            this.buffer_z = new ArrayList<Double>(1000);
+        }
+
+        public void put(int vector, double value) {
+            if (this.lock) {
+                return;
+            }
+            switch (vector) {
+                case 0:
+                    if (this.buffer_x.size() == 0) {
+                        this.buffer_x.add(value);
+                    } else {
+                        this.buffer_x.add(value - this.buffer_x.get(this.buffer_x.size() - 1));
+                    }
+                    break;
+                case 1:
+                    if (this.buffer_y.size() == 0) {
+                        this.buffer_y.add(value);
+                    } else {
+                        this.buffer_y.add(value - this.buffer_y.get(this.buffer_y.size() - 1));
+                    }
+                    break;
+                case 2:
+                    if (this.buffer_z.size() == 0) {
+                        this.buffer_z.add(value);
+                    } else {
+                        this.buffer_z.add(value - this.buffer_z.get(this.buffer_z.size() - 1));
+                    }
+                    break;
+            }
+
+
+        }
+
+        public String getTrMaxDelta(int vector) throws Exception {
+            switch (vector) {
+                case 0:
+                    return generateMessageEncoded("x", String.valueOf(getMaxDelta(vector)));
+                case 1:
+                    return generateMessageEncoded("y", String.valueOf(getMaxDelta(vector)));
+                case 2:
+                    return generateMessageEncoded("z", String.valueOf(getMaxDelta(vector)));
+                default:
+                    return StringUtil.EMPTY_STRING;
+            }
+        }
+
+        double getMaxDelta(int vector) {
+            this.lock = true;
+            switch (vector) {
+                case 0:
+                    return this.getMaxValue(this.buffer_x);
+                case 1:
+                    return this.getMaxValue(this.buffer_y);
+                case 2:
+                    return this.getMaxValue(this.buffer_z);
+                default:
+                    return 0;
+            }
+        }
+
+        private double getMaxValue(List<Double> buffer) {
+            if (buffer == null || buffer.size() == 0) {
+                return 0;
+            }
+            double temp = 0;
+            for (Double value : buffer) {
+                if (value > temp) {
+                    temp = value;
+                }
+            }
+            return temp;
+        }
+    }
+
+    public String generateMessageEncoded(String command, String value) throws Exception {
+        String key = BaseApplication.get(BluetoothLeService.this.getBaseContext()).getServerKey();
+        if (StringUtil.isNotEmpty(key)) {
+            return "|" + BaseApplication.get(BluetoothLeService.this.getBaseContext()).getServerID() + "|" + Crypt.encode(key, this.generateMessage(command, value));
+        } else {
+            return this.generateMessage(command, value);
+        }
+    }
+
+    private String generateMessage(String command, String value) {
+        String prefix = BaseApplication.get(BluetoothLeService.this.getBaseContext()).getServerPrefix();
+        String id = BaseApplication.get(BluetoothLeService.this.getBaseContext()).getServerID();
+        if (StringUtil.isNotEmpty(prefix)) {
+            return "sensor:" + prefix + "/" + id + "/" + command + " u " + value;
+        } else {
+            return "sensor:" + id + "/" + command + " u " + value;
         }
     }
 

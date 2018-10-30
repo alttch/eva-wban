@@ -7,6 +7,7 @@ public interface AppConstants {
 
     public final String APP_FIRST_START = "APP_FIRST_START";
     public final String APP_AUTO_START_STATE = "APP_AUTO_START_STATE";
+    public final String APP_SEND_PARTIAL_DATA_STATE = "APP_SEND_PARTIAL_DATA_STATE";
 
     public final String BL_NAME = "BL_NAME";
     public final String BL_ADDRESS = "BL_ADDRESS";
